@@ -1,6 +1,6 @@
 part of 'pioneer.dart';
 
-class PioneerRouterTarget {
+class RouterTarget {
   final Uri path;
   final Object? extra;
 
@@ -16,7 +16,7 @@ class PioneerRouterTarget {
 
   final String? title;
 
-  const PioneerRouterTarget({
+  const RouterTarget({
     required this.path,
     this.extra,
     this.key,
@@ -32,7 +32,7 @@ class PioneerRouterTarget {
   });
 
   @override
-  bool operator ==(covariant PioneerRouterTarget other) {
+  bool operator ==(covariant RouterTarget other) {
     if (identical(this, other)) return true;
 
     return other.path == path;
@@ -45,7 +45,7 @@ class PioneerRouterTarget {
 class PioneerPageWrapper {
   static MaterialPage material(
     Widget child, {
-    required PioneerRouterTarget target,
+    required RouterTarget target,
   }) {
     if (target.onPopInvoked == null) {
       return MaterialPage(
@@ -77,7 +77,7 @@ class PioneerPageWrapper {
 
   static CupertinoPage cupertino(
     Widget child, {
-    required PioneerRouterTarget target,
+    required RouterTarget target,
   }) {
     if (target.onPopInvoked == null) {
       return CupertinoPage(
@@ -108,4 +108,8 @@ class PioneerPageWrapper {
       title: target.title,
     );
   }
+}
+
+extension RouterTargetExtension on RouterTarget {
+  bool get hasQuery => path.queryParameters.isNotEmpty;
 }

@@ -1,21 +1,20 @@
+// ignore_for_file: overridden_fields
+
 import 'package:pioneer/pioneer.dart';
 
 part 'paths.dart';
 
-class RouterTarget extends PioneerRouterTarget {
-  const RouterTarget({
-    required super.path,
-    super.extra,
-    super.key,
-    super.name,
-    super.arguments,
-    super.restorationId,
-    super.maintainState = true,
-    super.fullscreenDialog = false,
-    super.allowSnapshotting = true,
-    super.canPop = true,
-    super.title,
-  });
+class RouterTargetRoot extends RouterTarget {
+  RouterTargetRoot() : super(path: Paths.root, extra: null);
+}
 
-  RouterTarget.root() : super(path: Paths.root, extra: null);
+class RouterTargetCatalog extends RouterTarget {
+  final int? id;
+  @override
+  final Map? extra;
+
+  RouterTargetCatalog({
+    this.id,
+    this.extra,
+  }) : super(path: Paths.catalog(id), extra: extra);
 }

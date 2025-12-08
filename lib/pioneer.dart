@@ -1,22 +1,30 @@
 library pioneer;
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 part 'utils.dart';
 part 'delegate.dart';
 
-class PioneerProvider extends StatefulWidget {
-  const PioneerProvider({super.key, required this.child, required this.root});
+class PioneerProvider<RouterTarget> extends StatefulWidget {
+  const PioneerProvider({
+    super.key,
+    required this.child,
+    required this.root,
+    required this.targetToWidgetTranslator,
+  });
 
   final Widget child;
-  final PioneerRouterTarget root;
+  final RouterTarget root;
+  final Widget Function(RouterTarget target) targetToWidgetTranslator;
 
   @override
   State<PioneerProvider> createState() => _PioneerProviderState();
 }
 
-class _PioneerProviderState extends State<PioneerProvider> {
+class _PioneerProviderState<RouterTarget> extends State<PioneerProvider> {
   late PioneerRouterDelegate delegate;
   late PioneerRouterInformationParser informationParser;
   late PioneerRouteInformationProvider informationProvider;
@@ -25,7 +33,10 @@ class _PioneerProviderState extends State<PioneerProvider> {
   void initState() {
     super.initState();
 
-    delegate = PioneerRouterDelegate(root: widget.root);
+    delegate = PioneerRouterDelegate(
+      root: widget.root,
+      targetToWidgetTranslator: widget.targetToWidgetTranslator,
+    );
     informationParser = PioneerRouterInformationParser();
     informationProvider = PioneerRouteInformationProvider();
   }

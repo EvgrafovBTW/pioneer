@@ -1,9 +1,26 @@
+import 'package:example/features/catalog/catalog_screen.dart';
+import 'package:example/features/product/product_screen.dart';
 import 'package:example/router/targets.dart';
 import 'package:flutter/material.dart';
 import 'package:pioneer/pioneer.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(
+    PioneerProvider(
+      root: RouterTargetRoot(),
+      targetToWidgetTranslator: _translator,
+      child: const MainApp(),
+    ),
+  );
+}
+
+Widget _translator(target) {
+  return switch (target) {
+    RouterTargetRoot() => Scaffold(),
+    RouterTargetCatalog() =>
+      target.hasQuery ? ProductScreen(id: target.id!) : const CatalogScreen(),
+    _ => Container(),
+  };
 }
 
 class MainApp extends StatelessWidget {
@@ -11,13 +28,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PioneerProvider(
-      root: RouterTarget.root(),
-      child: MaterialApp.router(
-        routerDelegate: Pioneer.delegateOf(context),
-        routeInformationParser: Pioneer.infoParserOf(context),
-        routeInformationProvider: Pioneer.infoProviderOf(context),
-      ),
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      routerDelegate: Pioneer.delegateOf(context),
+      routeInformationParser: Pioneer.infoParserOf(context),
+
+      ///TODO
+      // routeInformationProvider: Pioneer.infoProviderOf(context),
     );
   }
 }
