@@ -1,3 +1,4 @@
+import 'package:example/router/targets.dart';
 import 'package:flutter/material.dart';
 import 'package:pioneer/pioneer.dart';
 
@@ -30,6 +31,12 @@ class _CatalogPageState extends State<CatalogPage> {
             Pioneer.of(context).pop(context);
           },
           child: const Text('pop'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Pioneer.of(context).push(RouterTargetCatalog(id: 10));
+          },
+          child: const Text('product'),
         ),
       ],
     );
