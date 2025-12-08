@@ -65,9 +65,7 @@ class PioneerRouterDelegate extends RouterDelegate<RouterTarget>
     return Navigator(
       key: navigatorKey,
       pages: _buildPages(),
-      onDidRemovePage: (page) {
-        notifyListeners();
-      },
+      onDidRemovePage: (page) {},
     );
   }
 
