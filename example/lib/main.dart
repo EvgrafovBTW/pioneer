@@ -10,13 +10,8 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final calc = Calculator();
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text(calc.addOne(10).toString()),
-        ),
-      ),
+    return PioneerProvider(
+      child: MaterialApp.router(),
     );
   }
 }
