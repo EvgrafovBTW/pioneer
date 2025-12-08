@@ -12,17 +12,18 @@ class PioneerRouterTarget {
   final String? name;
   final Object? arguments;
   final String? restorationId;
-  void Function(bool, dynamic)? onPopInvoked;
+  final void Function(bool, dynamic)? onPopInvoked;
 
   final String? title;
 
-  PioneerRouterTarget({
+  const PioneerRouterTarget({
     required this.path,
     this.extra,
     this.key,
     this.name,
     this.arguments,
     this.restorationId,
+    this.onPopInvoked,
     this.maintainState = true,
     this.fullscreenDialog = false,
     this.allowSnapshotting = true,

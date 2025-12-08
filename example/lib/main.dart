@@ -1,3 +1,4 @@
+import 'package:example/router/targets.dart';
 import 'package:flutter/material.dart';
 import 'package:pioneer/pioneer.dart';
 
@@ -11,7 +12,12 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PioneerProvider(
-      child: MaterialApp.router(),
+      root: RouterTarget.root(),
+      child: MaterialApp.router(
+        routerDelegate: Pioneer.delegateOf(context),
+        routeInformationParser: Pioneer.infoParserOf(context),
+        routeInformationProvider: Pioneer.infoProviderOf(context),
+      ),
     );
   }
 }
