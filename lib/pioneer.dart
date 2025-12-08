@@ -1,5 +1,6 @@
 library pioneer;
 
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -69,7 +70,7 @@ class Pioneer extends InheritedWidget {
   static Pioneer? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<Pioneer>();
 
-  static PioneerRouterDelegate delegateOf(BuildContext context) => maybeOf(context)!.delegate;
+  static PioneerRouterDelegate of(BuildContext context) => maybeOf(context)!.delegate;
 
   static PioneerRouterInformationParser infoParserOf(BuildContext context) =>
       maybeOf(context)!.informationParser;

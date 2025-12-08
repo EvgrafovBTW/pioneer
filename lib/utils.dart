@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'pioneer.dart';
 
 class RouterTarget {
@@ -40,9 +41,50 @@ class RouterTarget {
 
   @override
   int get hashCode => path.hashCode ^ extra.hashCode;
+
+  RouterTarget copyWith({
+    Uri? path,
+    Object? extra,
+    bool? maintainState,
+    bool? fullscreenDialog,
+    bool? allowSnapshotting,
+    bool? canPop,
+    LocalKey? key,
+    String? name,
+    Object? arguments,
+    String? restorationId,
+    void Function(bool, dynamic)? onPopInvoked,
+    String? title,
+  }) {
+    return RouterTarget(
+      path: path ?? this.path,
+      extra: extra ?? this.extra,
+      maintainState: maintainState ?? this.maintainState,
+      fullscreenDialog: fullscreenDialog ?? this.fullscreenDialog,
+      allowSnapshotting: allowSnapshotting ?? this.allowSnapshotting,
+      canPop: canPop ?? this.canPop,
+      key: key ?? this.key,
+      name: name ?? this.name,
+      arguments: arguments ?? this.arguments,
+      restorationId: restorationId ?? this.restorationId,
+      onPopInvoked: onPopInvoked ?? this.onPopInvoked,
+      title: title ?? this.title,
+    );
+  }
 }
 
 class PioneerPageWrapper {
+  static Page get(
+    Widget child, {
+    required RouterTarget target,
+  }) {
+    if (Platform.isAndroid) {
+      return material(child, target: target);
+    }
+
+    return cupertino(child, target: target);
+  }
+
   static MaterialPage material(
     Widget child, {
     required RouterTarget target,

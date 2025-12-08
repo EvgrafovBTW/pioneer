@@ -1,4 +1,4 @@
-import 'package:example/features/catalog/catalog_screen.dart';
+import 'package:example/features/core/root_screen.dart';
 import 'package:example/features/product/product_screen.dart';
 import 'package:example/router/targets.dart';
 import 'package:flutter/material.dart';
@@ -16,9 +16,9 @@ void main() {
 
 Widget _translator(target) {
   return switch (target) {
-    RouterTargetRoot() => Scaffold(),
+    RouterTargetRoot() => const RootScreen(),
     RouterTargetCatalog() =>
-      target.hasQuery ? ProductScreen(id: target.id!) : const CatalogScreen(),
+      target.hasQuery ? ProductScreen(id: target.id!) : const RootScreenCatalog(),
     _ => Container(),
   };
 }
@@ -30,7 +30,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      routerDelegate: Pioneer.delegateOf(context),
+      routerDelegate: Pioneer.of(context),
       routeInformationParser: Pioneer.infoParserOf(context),
 
       ///TODO
