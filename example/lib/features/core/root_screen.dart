@@ -1,51 +1,31 @@
-import 'package:example/features/catalog/catalog_page.dart';
 import 'package:example/router/targets.dart';
 import 'package:flutter/material.dart';
 import 'package:pioneer/pioneer.dart';
 
-class RootScreenCatalog extends RootScreen {
-  const RootScreenCatalog({super.key, super.tab = RootTab.catalog});
-}
-
 class RootScreen extends StatelessWidget {
   const RootScreen({
     super.key,
-    this.tab = RootTab.home,
   });
-
-  final RootTab tab;
 
   @override
   Widget build(BuildContext context) {
-    final index = RootTab.values.indexOf(tab);
-
     return Scaffold(
-      body: IndexedStack(
-        index: index,
-        children: [
-          Container(),
-          const CatalogPage(),
-        ],
-      ),
+      body: Container(),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: index,
+        currentIndex: 0,
         onTap: (value) {
-          final tab = RootTab.values[value];
-          Pioneer.of(context).push(switch (tab) {
-            RootTab.catalog => RouterTargetCatalog(),
+          Pioneer.of(context).push(switch (value) {
+            1 => RouterTargetCatalog(),
+            2 => RouterTargetProfile(),
             _ => RouterTargetRoot(),
           });
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
           BottomNavigationBarItem(icon: Icon(Icons.shop), label: 'catalog'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'profile'),
         ],
       ),
     );
   }
-}
-
-enum RootTab {
-  home,
-  catalog;
 }

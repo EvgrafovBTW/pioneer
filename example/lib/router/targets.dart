@@ -9,12 +9,30 @@ class RouterTargetRoot extends RouterTarget {
 }
 
 class RouterTargetCatalog extends RouterTarget {
-  final int? id;
   @override
   final Map? extra;
 
   RouterTargetCatalog({
-    this.id,
     this.extra,
-  }) : super(path: Paths.catalog(id), extra: extra);
+  }) : super(path: Paths.catalog, extra: extra);
+}
+
+class RouterTargetProduct extends RouterTarget {
+  final int id;
+  @override
+  final Map? extra;
+
+  RouterTargetProduct({
+    required this.id,
+    this.extra,
+  }) : super(path: Paths.product(id), extra: extra);
+}
+
+class RouterTargetProfile extends RouterTarget {
+  @override
+  final Map? extra;
+
+  RouterTargetProfile({
+    this.extra,
+  }) : super(path: Paths.profile, extra: extra);
 }

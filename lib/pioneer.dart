@@ -14,12 +14,10 @@ class PioneerProvider extends StatefulWidget {
     super.key,
     required this.child,
     required this.root,
-    required this.targetToWidgetTranslator,
   });
 
   final Widget child;
   final RouterTarget root;
-  final Widget Function(RouterTarget target) targetToWidgetTranslator;
 
   @override
   State<PioneerProvider> createState() => _PioneerProviderState();
@@ -36,7 +34,6 @@ class _PioneerProviderState extends State<PioneerProvider> {
 
     delegate = PioneerRouterDelegate(
       root: widget.root,
-      targetToWidgetTranslator: widget.targetToWidgetTranslator,
     );
     informationParser = PioneerRouterInformationParser();
     informationProvider = PioneerRouteInformationProvider();

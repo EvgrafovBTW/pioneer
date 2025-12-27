@@ -34,7 +34,7 @@ class _CatalogPageState extends State<CatalogPage> {
         ),
         ElevatedButton(
           onPressed: () {
-            Pioneer.of(context).push(RouterTargetCatalog(id: 10));
+            Pioneer.of(context).push(RouterTargetProduct(id: 10));
           },
           child: const Text('product'),
         ),

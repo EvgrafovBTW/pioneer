@@ -35,9 +35,10 @@ class PioneerRouterInformationParser extends RouteInformationParser<RouterTarget
 class PioneerRouterDelegate extends RouterDelegate<RouterTarget>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouterTarget> {
   final RouterTarget root;
-  final Widget Function(RouterTarget target) targetToWidgetTranslator;
 
-  PioneerRouterDelegate({required this.root, required this.targetToWidgetTranslator});
+  PioneerRouterDelegate({
+    required this.root,
+  });
 
   RouterTarget? _target;
 
@@ -71,10 +72,10 @@ class PioneerRouterDelegate extends RouterDelegate<RouterTarget>
 
   List<Page> _buildPages() {
     final List<Page> pages = [
-      PioneerPageWrapper.get(
+      /* PioneerPageWrapper.get(
         targetToWidgetTranslator(root),
         target: root,
-      ),
+      ), */
     ];
 
     if (currentConfiguration.path.path.isEmpty) {
@@ -83,12 +84,12 @@ class PioneerRouterDelegate extends RouterDelegate<RouterTarget>
 
     pages.clear();
 
-    pages.add(
+    /* pages.add(
       PioneerPageWrapper.get(
         targetToWidgetTranslator(currentConfiguration),
         target: currentConfiguration,
       ),
-    );
+    ); */
 
     return pages;
   }
