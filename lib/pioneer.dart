@@ -9,7 +9,7 @@ import 'package:flutter/cupertino.dart';
 part 'utils.dart';
 part 'delegate.dart';
 
-class PioneerProvider<RouterTarget> extends StatefulWidget {
+class PioneerProvider extends StatefulWidget {
   const PioneerProvider({
     super.key,
     required this.child,
@@ -25,7 +25,7 @@ class PioneerProvider<RouterTarget> extends StatefulWidget {
   State<PioneerProvider> createState() => _PioneerProviderState();
 }
 
-class _PioneerProviderState<RouterTarget> extends State<PioneerProvider> {
+class _PioneerProviderState extends State<PioneerProvider> {
   late PioneerRouterDelegate delegate;
   late PioneerRouterInformationParser informationParser;
   late PioneerRouteInformationProvider informationProvider;

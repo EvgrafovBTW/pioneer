@@ -1,6 +1,6 @@
 part of 'pioneer.dart';
 
-class PioneerRouteInformationProvider<RouterTarget> extends RouteInformationProvider {
+class PioneerRouteInformationProvider extends RouteInformationProvider {
   @override
   void addListener(VoidCallback listener) {
     // TODO: implement addListener
