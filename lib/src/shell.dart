@@ -27,8 +27,10 @@ final class PioneerShellController extends ChangeNotifier {
 
   PioneerShellController._(
     this._branchDefinitions,
-    this._currentIndex,
-  ) : _routers = List.unmodifiable(
+    int initialIndex,
+  )   : _initialIndex = initialIndex,
+        _currentIndex = initialIndex,
+        _routers = List.unmodifiable(
           _branchDefinitions.map(
             (branch) => PioneerRouter(
               configuration: branch.configuration,
@@ -58,9 +60,11 @@ final class PioneerShellController extends ChangeNotifier {
 
   final List<PioneerShellBranch> _branchDefinitions;
   final List<PioneerRouter> _routers;
+  final int _initialIndex;
   int _currentIndex;
 
   List<PioneerRouter> get branches => _routers;
+  int get initialIndex => _initialIndex;
   int get currentIndex => _currentIndex;
   PioneerRouter get currentBranch => _routers[_currentIndex];
 
@@ -96,20 +100,43 @@ final class PioneerShellController extends ChangeNotifier {
     _routers[index].reset();
   }
 
-  void resetBranches({int activeIndex = 0}) {
-    RangeError.checkValidIndex(activeIndex, _routers, 'activeIndex');
+  void resetBranches({int? activeIndex}) {
+    final targetIndex = activeIndex ?? _initialIndex;
+
+    RangeError.checkValidIndex(targetIndex, _routers, 'activeIndex');
 
     for (final router in _routers) {
       router.reset();
     }
 
-    final changed = _currentIndex != activeIndex;
+    final changed = _currentIndex != targetIndex;
 
-    _currentIndex = activeIndex;
+    _currentIndex = targetIndex;
 
     if (changed) {
       notifyListeners();
     }
+  }
+
+  /// Handles system Back after the root router has exhausted its own stack.
+  ///
+  /// Pops the active branch first. At a non-initial branch root, switches to
+  /// the initial branch. Returns false only at the initial branch root so the
+  /// platform can close the application.
+  bool handleSystemBack() {
+    if (currentBranch.canPop) {
+      currentBranch.pop();
+
+      return true;
+    }
+
+    if (_currentIndex != _initialIndex) {
+      goBranch(_initialIndex);
+
+      return true;
+    }
+
+    return false;
   }
 
   int _resolveBranch(PioneerRoute route) {

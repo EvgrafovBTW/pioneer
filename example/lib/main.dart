@@ -37,16 +37,19 @@ class _MainAppState extends State<MainApp> {
     );
     rootRouter = PioneerRouter(
       configuration: rootConfiguration(shell),
-      onPopFallback: () {
-        if (!shell.currentBranch.canPop) {
-          return false;
-        }
-
-        shell.currentBranch.pop();
-
-        return true;
-      },
+      onPopFallback: _handleSystemBack,
     );
+  }
+
+  bool _handleSystemBack() {
+    final value = shell.handleSystemBack();
+
+    ///? if app's flow doesnt allow exit on system back at all
+    /// this method should always return true
+    // return true;
+    ///? Also, additional methods such as showing exit dialog may be called here
+
+    return value;
   }
 
   @override

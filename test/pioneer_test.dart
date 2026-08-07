@@ -72,8 +72,7 @@ void main() {
     });
   });
 
-  testWidgets('RouterDelegate builds pages and handles system back',
-      (tester) async {
+  testWidgets('RouterDelegate builds pages and handles system back', (tester) async {
     final router = PioneerRouter(configuration: configuration);
     addTearDown(router.dispose);
 
@@ -148,8 +147,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('count 0'), findsOneWidget);
     expect(shell.currentIndex, 0);
-    expect(
-        shell.branches.every((branch) => branch.entries.length == 1), isTrue);
+    expect(shell.branches.every((branch) => branch.entries.length == 1), isTrue);
   });
 
   test('root back falls through to the active shell branch', () async {
@@ -162,15 +160,7 @@ void main() {
     );
     final root = PioneerRouter(
       configuration: configuration,
-      onPopFallback: () {
-        if (!shell.currentBranch.canPop) {
-          return false;
-        }
-
-        shell.currentBranch.pop();
-
-        return true;
-      },
+      onPopFallback: shell.handleSystemBack,
     );
     addTearDown(() {
       root.dispose();
@@ -180,6 +170,30 @@ void main() {
 
     expect(await root.routerDelegate.popRoute(), isTrue);
     expect(shell.branch(0).entries, hasLength(1));
+  });
+
+  test('system back returns a branch root to the initial branch', () async {
+    final shell = PioneerShellController(
+      branches: [
+        _branch(configuration, 'first'),
+        _branch(configuration, 'second'),
+        _branch(configuration, 'third'),
+      ],
+    );
+    final root = PioneerRouter(
+      configuration: configuration,
+      onPopFallback: shell.handleSystemBack,
+    );
+    addTearDown(() {
+      root.dispose();
+      shell.dispose();
+    });
+
+    shell.goBranch(1);
+
+    expect(await root.routerDelegate.popRoute(), isTrue);
+    expect(shell.currentIndex, shell.initialIndex);
+    expect(await root.routerDelegate.popRoute(), isFalse);
   });
 
   group('PioneerShellController.goTo', () {
@@ -256,8 +270,7 @@ void main() {
     });
   });
 
-  testWidgets('nested shell does not duplicate navigator keys on startup/reset',
-      (
+  testWidgets('nested shell does not duplicate navigator keys on startup/reset', (
     tester,
   ) async {
     final shell = PioneerShellController(
@@ -366,8 +379,7 @@ final configuration = PioneerConfiguration(
     ),
     PioneerRouteDefinition<ProductRoute>(
       parse: (uri) {
-        if (uri.pathSegments.length != 2 ||
-            uri.pathSegments.first != 'products') {
+        if (uri.pathSegments.length != 2 || uri.pathSegments.first != 'products') {
           return null;
         }
         final id = int.tryParse(uri.pathSegments.last);
@@ -392,8 +404,7 @@ final counterConfiguration = PioneerConfiguration(
   ],
 );
 
-PioneerShellBranch _branch(PioneerConfiguration configuration, String key) =>
-    PioneerShellBranch(
+PioneerShellBranch _branch(PioneerConfiguration configuration, String key) => PioneerShellBranch(
       key: ValueKey<String>(key),
       configuration: configuration,
     );
@@ -403,8 +414,7 @@ final productConfiguration = PioneerConfiguration(
   routes: [
     PioneerRouteDefinition<ProductRoute>(
       parse: (uri) {
-        if (uri.pathSegments.length != 2 ||
-            uri.pathSegments.first != 'products') {
+        if (uri.pathSegments.length != 2 || uri.pathSegments.first != 'products') {
           return null;
         }
         final id = int.tryParse(uri.pathSegments.last);
