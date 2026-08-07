@@ -45,7 +45,7 @@ class _PioneerProviderState extends State<PioneerProvider> {
       key: widget.key,
       delegate: delegate,
       informationParser: informationParser,
-      informatioProvider: informationProvider,
+      informationProvider: informationProvider,
       child: widget.child,
     );
   }
@@ -54,13 +54,13 @@ class _PioneerProviderState extends State<PioneerProvider> {
 class Pioneer extends InheritedWidget {
   final PioneerRouterDelegate delegate;
   final PioneerRouterInformationParser informationParser;
-  final PioneerRouteInformationProvider informatioProvider;
+  final PioneerRouteInformationProvider informationProvider;
 
   const Pioneer({
     super.key,
     required this.delegate,
     required this.informationParser,
-    required this.informatioProvider,
+    required this.informationProvider,
     required super.child,
   });
 
@@ -73,7 +73,7 @@ class Pioneer extends InheritedWidget {
       maybeOf(context)!.informationParser;
 
   static PioneerRouteInformationProvider infoProviderOf(BuildContext context) =>
-      maybeOf(context)!.informatioProvider;
+      maybeOf(context)!.informationProvider;
 
   @override
   bool updateShouldNotify(Pioneer oldWidget) => delegate != oldWidget.delegate;
