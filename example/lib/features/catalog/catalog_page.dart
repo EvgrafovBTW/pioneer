@@ -1,44 +1,33 @@
-import 'package:example/router/targets.dart';
+import 'package:example/router/app_routes.dart';
+import 'package:example/router/catalog_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:pioneer/pioneer.dart';
 
-class CatalogPage extends StatefulWidget {
+class CatalogPage extends StatelessWidget {
   const CatalogPage({super.key});
 
   @override
-  State<CatalogPage> createState() => _CatalogPageState();
-}
-
-class _CatalogPageState extends State<CatalogPage> {
-  int count = 0;
-  @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Center(
-          child: ElevatedButton(
-            onPressed: () {
-              setState(() {
-                count++;
-              });
-            },
-            child: Text(count.toString()),
-          ),
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Catalog branch'),
+            FilledButton(
+              key: const Key('catalog-product'),
+              onPressed: () => PioneerRouterScope.of(context)
+                  .push<void>(const ProductRoute(id: 42)),
+              child: const Text('Open product inside branch'),
+            ),
+            TextButton(
+              onPressed: () => PioneerRouterScope.rootOf(context)
+                  .push<void>(const AppOverlayRoute()),
+              child: const Text('Open above bottom bar'),
+            ),
+          ],
         ),
-        ElevatedButton(
-          onPressed: () {
-            Pioneer.of(context).pop(context);
-          },
-          child: const Text('pop'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            Pioneer.of(context).push(RouterTargetProduct(id: 10));
-          },
-          child: const Text('product'),
-        ),
-      ],
+      ),
     );
   }
 }

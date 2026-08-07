@@ -1,39 +1,119 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Pioneer
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+Pioneer is a typed navigation package built on Flutter's Navigator 2.0. Routes
+are immutable objects, public navigation methods do not accept string paths,
+and untrusted deep links are converted to typed routes at the system boundary.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
-
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+## Define routes
 
 ```dart
-const like = 'sample';
+final class ProductRoute implements PioneerRoute {
+  const ProductRoute({required this.productId});
+
+  final int productId;
+
+  @override
+  Uri get uri => Uri(path: '/products/$productId');
+}
+
+final configuration = PioneerConfiguration(
+  initialRoute: const HomeRoute(),
+  routes: [
+    PioneerRouteDefinition<ProductRoute>(
+      parse: (uri) {
+        if (uri.pathSegments case ['products', final rawId]) {
+          final id = int.tryParse(rawId);
+          return id == null ? null : ProductRoute(productId: id);
+        }
+        return null;
+      },
+      builder: (context, route) => ProductScreen(id: route.productId),
+    ),
+  ],
+);
 ```
 
-## Additional information
+Every route type used as `initialRoute` must have a corresponding definition.
+Malformed or unknown incoming addresses throw `PioneerRouteNotFound`.
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+## Install the router
+
+```dart
+final router = PioneerRouter(configuration: configuration);
+
+MaterialApp.router(routerConfig: router.routerConfig);
+```
+
+Each `PioneerRouter` owns an independent stack, so it can also back a nested
+`Router` inside a dialog, sheet, tab, or another local widget subtree.
+
+## Navigate
+
+```dart
+final Product? selected = await router.push<Product>(
+  const ProductPickerRoute(),
+);
+
+router.pop(selectedProduct);
+router.replace(const ProfileRoute());
+router.pushReplacement<void, Product>(const HomeRoute(), result: selected);
+router.pushAndRemoveUntil<void>(const HomeRoute(), (route) => false);
+router.reset();
+router.reset(const LoginRoute());
+```
+
+`pop` returns `void` and throws `PioneerCannotPop` when `canPop` is false.
+Check `router.canPop` first when reaching the root page is an expected case.
+
+`reset` does not require a `BuildContext`; it completes pending route results,
+discards the existing stack and creates a fresh page, including fresh widget
+state.
+
+## Stateful shell
+
+```dart
+final shell = PioneerShellController(
+  branches: [
+    PioneerShellBranch(
+      key: const ValueKey('homeKey'),
+      configuration: homeConfiguration,
+    ),
+    PioneerShellBranch(
+      key: const ValueKey('catalogKey'),
+      configuration: catalogConfiguration,
+    ),
+    PioneerShellBranch(
+      key: const ValueKey('profileKey'),
+      configuration: profileConfiguration,
+    ),
+  ],
+);
+
+Scaffold(
+  body: PioneerStatefulShell(controller: shell),
+  bottomNavigationBar: BottomNavigationBar(
+    currentIndex: shell.currentIndex,
+    onTap: shell.goBranch,
+    items: const [/* three branches */],
+  ),
+);
+```
+
+Every branch owns an independent `PioneerRouter`. `goBranch` keeps its stack
+and widget state mounted. Use `resetBranch(index)` for one branch or
+`resetBranches()` for a complete shell reset. From inside a branch,
+`PioneerRouterScope.rootOf(context)` returns the outer router and can present a
+page above the entire bottom bar.
+
+From a branch page, `goTo` resolves and activates a keyed branch. It prefers
+the active branch, then requires exactly one matching branch. An ambiguous
+match throws `PioneerAmbiguousShellRoute`:
+
+```dart
+PioneerShellScope.of(context).goTo(const ProductRoute(id: 42));
+
+PioneerShellScope.of(context).goTo(
+  const ProductRoute(id: 42),
+  branchKey: const ValueKey('catalogKey'),
+);
+```

@@ -1,3 +1,5 @@
+import 'package:example/router/app_routes.dart';
+import 'package:example/router/home_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:pioneer/pioneer.dart';
 
@@ -9,15 +11,29 @@ class ProductScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('product $id'),
-      ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Pioneer.of(context).pop(context);
-          },
-          child: const Text('pop'),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Product $id'),
+            FilledButton(
+              onPressed: () => PioneerRouterScope.of(context).pop(),
+              child: const Text('Back to catalog'),
+            ),
+            TextButton(
+              key: const Key('product-overlay'),
+              onPressed: () => PioneerRouterScope.rootOf(context)
+                  .push<void>(const AppOverlayRoute()),
+              child: const Text('Open above bottom bar'),
+            ),
+            TextButton(
+              key: const Key('product-to-home-details'),
+              onPressed: () => PioneerShellScope.of(context).goTo(
+                const HomeDetailsRoute(),
+              ),
+              child: const Text('Go to Home details'),
+            ),
+          ],
         ),
       ),
     );
