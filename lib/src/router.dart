@@ -24,8 +24,7 @@ final class PioneerRouter {
       routerDelegate: routerDelegate,
       routeInformationParser: routeInformationParser,
       routeInformationProvider: routeInformationProvider,
-      backButtonDispatcher:
-          handlesSystemBack ? RootBackButtonDispatcher() : null,
+      backButtonDispatcher: handlesSystemBack ? RootBackButtonDispatcher() : null,
     );
   }
 
@@ -83,8 +82,7 @@ final class PioneerRouterScope extends InheritedWidget {
   final PioneerRouter router;
 
   static PioneerRouter of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<PioneerRouterScope>();
+    final scope = context.dependOnInheritedWidgetOfExactType<PioneerRouterScope>();
     assert(scope != null, 'No PioneerRouterScope found in this context.');
     return scope!.router;
   }
@@ -110,6 +108,5 @@ final class PioneerRouterScope extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(PioneerRouterScope oldWidget) =>
-      router != oldWidget.router;
+  bool updateShouldNotify(PioneerRouterScope oldWidget) => router != oldWidget.router;
 }

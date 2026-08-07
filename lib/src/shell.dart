@@ -51,8 +51,7 @@ final class PioneerShellController extends ChangeNotifier {
       final key = branch.key;
 
       if (key != null && !keys.add(key)) {
-        throw ArgumentError.value(
-            key, 'branches', 'Branch keys must be unique.');
+        throw ArgumentError.value(key, 'branches', 'Branch keys must be unique.');
       }
     }
   }
@@ -73,9 +72,8 @@ final class PioneerShellController extends ChangeNotifier {
   /// route. Otherwise exactly one keyed branch must support it. With an
   /// explicit key, only that branch is inspected.
   void goTo(PioneerRoute route, {LocalKey? branchKey}) {
-    final index = branchKey == null
-        ? _resolveBranch(route)
-        : _resolveExplicitBranch(route, branchKey);
+    final index =
+        branchKey == null ? _resolveBranch(route) : _resolveExplicitBranch(route, branchKey);
 
     _routers[index].reset(route);
     goBranch(index);
@@ -116,8 +114,7 @@ final class PioneerShellController extends ChangeNotifier {
 
   int _resolveBranch(PioneerRoute route) {
     final active = _branchDefinitions[_currentIndex];
-    if (active.key != null &&
-        active.configuration.maybeMatchRoute(route) != null) {
+    if (active.key != null && active.configuration.maybeMatchRoute(route) != null) {
       return _currentIndex;
     }
 
@@ -130,8 +127,7 @@ final class PioneerShellController extends ChangeNotifier {
 
       final branch = _branchDefinitions[index];
 
-      if (branch.key != null &&
-          branch.configuration.maybeMatchRoute(route) != null) {
+      if (branch.key != null && branch.configuration.maybeMatchRoute(route) != null) {
         candidates.add(index);
       }
     }
@@ -159,8 +155,7 @@ final class PioneerShellController extends ChangeNotifier {
       throw PioneerShellBranchNotFound(branchKey);
     }
 
-    if (_branchDefinitions[index].configuration.maybeMatchRoute(route) ==
-        null) {
+    if (_branchDefinitions[index].configuration.maybeMatchRoute(route) == null) {
       throw PioneerShellRouteNotFound(route, branchKey: branchKey);
     }
 
@@ -277,8 +272,7 @@ final class _PioneerStatefulShellState extends State<PioneerStatefulShell> {
 }
 
 /// Provides the surrounding stateful shell controller to branch pages.
-final class PioneerShellScope
-    extends InheritedNotifier<PioneerShellController> {
+final class PioneerShellScope extends InheritedNotifier<PioneerShellController> {
   const PioneerShellScope({
     super.key,
     required PioneerShellController controller,
@@ -286,8 +280,7 @@ final class PioneerShellScope
   }) : super(notifier: controller);
 
   static PioneerShellController of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<PioneerShellScope>();
+    final scope = context.dependOnInheritedWidgetOfExactType<PioneerShellScope>();
     if (scope == null) {
       throw FlutterError('No PioneerShellScope found in this context.');
     }

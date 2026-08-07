@@ -11,8 +11,7 @@ final class PioneerRoutePath {
   Uri get uri => match.route.uri;
 }
 
-final class PioneerRouteInformationParser
-    extends RouteInformationParser<PioneerRoutePath> {
+final class PioneerRouteInformationParser extends RouteInformationParser<PioneerRoutePath> {
   const PioneerRouteInformationParser(this.configuration);
 
   final PioneerConfiguration configuration;
@@ -21,9 +20,8 @@ final class PioneerRouteInformationParser
   Future<PioneerRoutePath> parseRouteInformation(
     RouteInformation routeInformation,
   ) async {
-    final uri = routeInformation.uri.path.isEmpty
-        ? configuration.initialRoute.uri
-        : routeInformation.uri;
+    final uri =
+        routeInformation.uri.path.isEmpty ? configuration.initialRoute.uri : routeInformation.uri;
 
     return PioneerRoutePath(configuration.matchUri(uri));
   }
@@ -33,10 +31,8 @@ final class PioneerRouteInformationParser
       RouteInformation(uri: configuration.uri);
 }
 
-final class PioneerRouteInformationProvider extends RouteInformationProvider
-    with ChangeNotifier {
-  PioneerRouteInformationProvider(Uri initialUri)
-      : _value = RouteInformation(uri: initialUri);
+final class PioneerRouteInformationProvider extends RouteInformationProvider with ChangeNotifier {
+  PioneerRouteInformationProvider(Uri initialUri) : _value = RouteInformation(uri: initialUri);
 
   RouteInformation _value;
 
@@ -48,8 +44,7 @@ final class PioneerRouteInformationProvider extends RouteInformationProvider
     RouteInformation routeInformation, {
     RouteInformationReportingType type = RouteInformationReportingType.none,
   }) {
-    if (_value.uri == routeInformation.uri &&
-        _value.state == routeInformation.state) {
+    if (_value.uri == routeInformation.uri && _value.state == routeInformation.state) {
       return;
     }
 
@@ -60,8 +55,7 @@ final class PioneerRouteInformationProvider extends RouteInformationProvider
   /// nested router integration). Router-originated reports do not use this
   /// method, preventing a navigation feedback loop.
   void setRouteInformation(RouteInformation routeInformation) {
-    if (_value.uri == routeInformation.uri &&
-        _value.state == routeInformation.state) {
+    if (_value.uri == routeInformation.uri && _value.state == routeInformation.state) {
       return;
     }
 
@@ -83,8 +77,7 @@ final class PioneerRouterDelegate extends RouterDelegate<PioneerRoutePath>
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
-  PioneerRoutePath get currentConfiguration =>
-      PioneerRoutePath(stack.currentMatch);
+  PioneerRoutePath get currentConfiguration => PioneerRoutePath(stack.currentMatch);
 
   @override
   Future<void> setNewRoutePath(PioneerRoutePath configuration) async {

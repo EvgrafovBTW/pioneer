@@ -157,8 +157,7 @@ final class PioneerCannotPop implements Exception {
   const PioneerCannotPop();
 
   @override
-  String toString() =>
-      'Cannot pop the last page from a Pioneer navigation stack.';
+  String toString() => 'Cannot pop the last page from a Pioneer navigation stack.';
 }
 
 final class _Entry<T> {

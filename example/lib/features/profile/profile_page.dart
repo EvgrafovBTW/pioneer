@@ -15,8 +15,8 @@ class ProfilePage extends StatelessWidget {
             const Text('Profile branch'),
             FilledButton(
               key: const Key('profile-details'),
-              onPressed: () => PioneerRouterScope.of(context)
-                  .push<void>(const ProfileDetailsRoute()),
+              onPressed: () =>
+                  PioneerRouterScope.of(context).push<void>(const ProfileDetailsRoute()),
               child: const Text('Open inside Profile branch'),
             ),
           ],

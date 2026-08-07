@@ -10,8 +10,7 @@ import 'package:example/router/home_routes.dart';
 import 'package:example/router/profile_routes.dart';
 import 'package:pioneer/pioneer.dart';
 
-PioneerConfiguration rootConfiguration(PioneerShellController shell) =>
-    PioneerConfiguration(
+PioneerConfiguration rootConfiguration(PioneerShellController shell) => PioneerConfiguration(
       initialRoute: const ShellRoute(),
       routes: [
         PioneerRouteDefinition<ShellRoute>(
@@ -19,8 +18,7 @@ PioneerConfiguration rootConfiguration(PioneerShellController shell) =>
           builder: (context, route) => RootScreen(shell: shell),
         ),
         PioneerRouteDefinition<AppOverlayRoute>(
-          parse: (uri) =>
-              uri.path == '/overlay' ? const AppOverlayRoute() : null,
+          parse: (uri) => uri.path == '/overlay' ? const AppOverlayRoute() : null,
           builder: (context, route) => OverlayScreen(shell: shell),
         ),
       ],
@@ -34,8 +32,7 @@ final homeConfiguration = PioneerConfiguration(
       builder: (context, route) => const HomePage(),
     ),
     PioneerRouteDefinition<HomeDetailsRoute>(
-      parse: (uri) =>
-          uri.path == '/home/details' ? const HomeDetailsRoute() : null,
+      parse: (uri) => uri.path == '/home/details' ? const HomeDetailsRoute() : null,
       builder: (context, route) => const HomeDetailsPage(),
     ),
   ],
@@ -52,9 +49,7 @@ final catalogConfiguration = PioneerConfiguration(
       parse: (uri) {
         final segments = uri.pathSegments;
 
-        if (segments.length != 3 ||
-            segments[0] != 'catalog' ||
-            segments[1] != 'product') {
+        if (segments.length != 3 || segments[0] != 'catalog' || segments[1] != 'product') {
           return null;
         }
 
@@ -75,8 +70,7 @@ final profileConfiguration = PioneerConfiguration(
       builder: (context, route) => const ProfilePage(),
     ),
     PioneerRouteDefinition<ProfileDetailsRoute>(
-      parse: (uri) =>
-          uri.path == '/profile/details' ? const ProfileDetailsRoute() : null,
+      parse: (uri) => uri.path == '/profile/details' ? const ProfileDetailsRoute() : null,
       builder: (context, route) => const ProfileDetailsPage(),
     ),
   ],

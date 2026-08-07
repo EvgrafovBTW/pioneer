@@ -14,8 +14,7 @@ typedef PioneerRouteBuilder<R extends PioneerRoute> = Widget Function(
 );
 
 /// Describes how one concrete route type is parsed and rendered.
-final class PioneerRouteDefinition<R extends PioneerRoute>
-    implements PioneerRouteDefinitionBase {
+final class PioneerRouteDefinition<R extends PioneerRoute> implements PioneerRouteDefinitionBase {
   const PioneerRouteDefinition({
     required this.parse,
     required this.builder,

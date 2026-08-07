@@ -22,8 +22,8 @@ class ProductScreen extends StatelessWidget {
             ),
             TextButton(
               key: const Key('product-overlay'),
-              onPressed: () => PioneerRouterScope.rootOf(context)
-                  .push<void>(const AppOverlayRoute()),
+              onPressed: () =>
+                  PioneerRouterScope.rootOf(context).push<void>(const AppOverlayRoute()),
               child: const Text('Open above bottom bar'),
             ),
             TextButton(
