@@ -1,5 +1,6 @@
-import 'package:example/router/branch_keys.dart';
-import 'package:example/router/configurations.dart';
+import 'package:example/features/core/admin_screen.dart';
+import 'package:example/features/core/root_screen.dart';
+import 'package:example/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:pioneer/pioneer.dart';
 
@@ -36,9 +37,22 @@ class _MainAppState extends State<MainApp> {
       ],
     );
     rootRouter = PioneerRouter(
-      configuration: rootConfiguration(shell),
+      configuration: rootConfiguration(
+        rootBuilder: (context, route) => RootScreen(
+          shell: shell,
+          onResetNavigation: _resetNavigation,
+        ),
+        adminBuilder: (context, route) => AdminScreen(
+          onResetNavigation: _resetNavigation,
+        ),
+      ),
       onPopFallback: _handleSystemBack,
     );
+  }
+
+  void _resetNavigation() {
+    shell.resetBranches();
+    rootRouter.popToRoot();
   }
 
   bool _handleSystemBack() {

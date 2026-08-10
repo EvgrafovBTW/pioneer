@@ -1,6 +1,4 @@
 import 'package:example/features/catalog/catalog_page.dart';
-import 'package:example/features/core/admin_screen.dart';
-import 'package:example/features/core/root_screen.dart';
 import 'package:example/features/home/home_page.dart';
 import 'package:example/features/product/product_screen.dart';
 import 'package:example/features/profile/profile_page.dart';
@@ -10,16 +8,20 @@ import 'package:example/router/home_routes.dart';
 import 'package:example/router/profile_routes.dart';
 import 'package:pioneer/pioneer.dart';
 
-PioneerConfiguration rootConfiguration(PioneerShellController shell) => PioneerConfiguration(
+PioneerConfiguration rootConfiguration({
+  required PioneerRouteBuilder<RootRoute> rootBuilder,
+  required PioneerRouteBuilder<AdminRoute> adminBuilder,
+}) =>
+    PioneerConfiguration(
       initialRoute: const RootRoute(),
       routes: [
         PioneerRouteDefinition<RootRoute>(
           parse: (uri) => uri.path == '/' ? const RootRoute() : null,
-          builder: (context, route) => RootScreen(shell: shell),
+          builder: rootBuilder,
         ),
         PioneerRouteDefinition<AdminRoute>(
           parse: (uri) => uri.path == '/admin' ? const AdminRoute() : null,
-          builder: (context, route) => AdminScreen(shell: shell),
+          builder: adminBuilder,
         ),
       ],
     );

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:pioneer/pioneer.dart';
 
 class AdminScreen extends StatelessWidget {
-  const AdminScreen({super.key, required this.shell});
+  const AdminScreen({
+    super.key,
+    required this.onResetNavigation,
+  });
 
-  final PioneerShellController shell;
+  final VoidCallback onResetNavigation;
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +28,7 @@ class AdminScreen extends StatelessWidget {
 
             TextButton.icon(
               key: const Key('admin-reset-all'),
-              onPressed: () {
-                shell.resetBranches();
-                PioneerRouterScope.rootOf(context).popToRoot();
-              },
+              onPressed: onResetNavigation,
               icon: const Icon(Icons.restart_alt),
               label: const Text('Full navigation reset'),
             ),
