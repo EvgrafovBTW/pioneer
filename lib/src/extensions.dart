@@ -47,6 +47,10 @@ extension PioneerBuildContextExtension on BuildContext {
     pioneerShell.goTo(route, branchKey: branchKey);
   }
 
+  void goToUri(Uri uri, {LocalKey? branchKey}) {
+    pioneerShell.goToUri(uri, branchKey: branchKey);
+  }
+
   void goBranch(int index) => pioneerShell.goBranch(index);
 
   void resetBranch(int index) => pioneerShell.resetBranch(index);

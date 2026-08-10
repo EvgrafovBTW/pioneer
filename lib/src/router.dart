@@ -10,10 +10,15 @@ final class PioneerRouter {
   PioneerRouter({
     required this.configuration,
     this.handlesSystemBack = true,
+    this.deepLinkHandler,
   })  : stack = PioneerStack(configuration),
-        routeInformationParser = PioneerRouteInformationParser(configuration),
+        routeInformationParser = PioneerRouteInformationParser(
+          configuration,
+          deepLinkHandler: deepLinkHandler,
+        ),
         routeInformationProvider = PioneerRouteInformationProvider(
           configuration.initialRoute.uri,
+          handlesPlatformRoutes: handlesSystemBack,
         ) {
     routerDelegate = PioneerRouterDelegate(stack);
     routerConfig = RouterConfig<PioneerRoutePath>(
@@ -26,6 +31,7 @@ final class PioneerRouter {
 
   final PioneerConfiguration configuration;
   final bool handlesSystemBack;
+  final PioneerDeepLinkHandler? deepLinkHandler;
   final PioneerStack stack;
   final PioneerRouteInformationParser routeInformationParser;
   final PioneerRouteInformationProvider routeInformationProvider;
@@ -35,6 +41,7 @@ final class PioneerRouter {
   List<PioneerStackEntry> get entries => stack.entries;
   PioneerRoute get currentRoute => stack.currentRoute;
   bool get canPop => stack.canPop;
+  bool get isDeepLinkRoute => entries.length == 1 && stack.currentMatch.supportsDeepLinking;
   PioneerSystemBackHandler? get handleSystemBack => routerDelegate.handleSystemBack;
 
   set handleSystemBack(PioneerSystemBackHandler? value) {
@@ -59,7 +66,12 @@ final class PioneerRouter {
 
   void pop<T>([T? result]) => stack.pop<T>(result);
 
-  void reset([PioneerRoute? route]) => stack.reset(route);
+  void reset([PioneerRoute? route]) {
+    final match = configuration.matchRoute(route ?? configuration.initialRoute);
+
+    routeInformationProvider.setInternalMatch(match);
+    stack.setPath(match, force: true);
+  }
 
   /// Removes every page above the first one without recreating its state.
   void popToRoot() => stack.popToRoot();

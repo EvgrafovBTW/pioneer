@@ -41,6 +41,57 @@ final configuration = PioneerConfiguration(
 Every route type used as `initialRoute` must have a corresponding definition.
 Malformed or unknown incoming addresses throw `PioneerRouteNotFound`.
 
+## Local Android deep link example
+
+The example app registers a custom URI scheme that does not require a domain
+or `assetlinks.json`:
+
+```text
+pioneer-example://app/catalog/product/42
+```
+
+The Android manifest forwards this URI to Flutter. The root router removes the
+external scheme and authority and first searches its own configuration.
+`ProductRoute` is registered there as a deep link, so the product opens
+full-screen without the bottom bar. The same parser is also used by the catalog
+configuration for regular in-branch navigation.
+
+Branch roots such as `/catalog` and `/profile` are not registered as root deep
+links. They fall through to `deepLinkHandler`, which selects the matching shell
+branch and returns `RootRoute`:
+
+```dart
+final rootRouter = PioneerRouter(
+  configuration: rootConfiguration,
+  deepLinkHandler: (uri) {
+    branchShell.goToUri(uri);
+
+    return const RootRoute();
+  },
+);
+```
+
+`goToUri` follows the same branch rules as `goTo`: the active keyed branch is
+preferred, exactly one other keyed branch may match, and ambiguity throws an
+exception. A system or UI Back from the full-screen product resets all branches
+and opens the default `RootRoute` only when the root stack contains exactly one
+route declared with `PioneerRouteDefinition.deepLink`. This is exposed as
+`rootRouter.isDeepLinkRoot`; no concrete route type is checked. If another
+full-screen product was pushed above it, normal Back pops to the previous
+product first. The behavior is the same on cold and warm application starts.
+Test the example on a connected Android device with:
+
+```shell
+adb shell am start -W \
+  -a android.intent.action.VIEW \
+  -d "pioneer-example://app/catalog/product/42" \
+  com.example.example
+```
+
+The same URI can be entered or opened in a browser, although custom schemes are
+browser-dependent and intentionally less convenient than verified HTTPS App
+Links.
+
 ## Install the router
 
 ```dart

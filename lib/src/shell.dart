@@ -137,6 +137,16 @@ final class PioneerShellController extends ChangeNotifier {
     goBranch(index);
   }
 
+  /// Resolves an external URI in shell branches and activates its route.
+  void goToUri(Uri uri, {LocalKey? branchKey}) {
+    _requireBranches('goToUri');
+
+    final resolved = branchKey == null ? _resolveUri(uri) : _resolveExplicitUri(uri, branchKey);
+
+    _routers[resolved.index].reset(resolved.match.route);
+    goBranch(resolved.index);
+  }
+
   void goBranch(int index) {
     _requireBranches('goBranch');
 
@@ -257,6 +267,61 @@ final class PioneerShellController extends ChangeNotifier {
     return index;
   }
 
+  ({int index, PioneerMatch match}) _resolveUri(Uri uri) {
+    final active = _branchDefinitions[_currentIndex];
+    final activeMatch = active.key == null ? null : active.configuration.maybeMatchUri(uri);
+
+    if (activeMatch != null) {
+      return (index: _currentIndex, match: activeMatch);
+    }
+
+    final candidates = <({int index, PioneerMatch match})>[];
+
+    for (var index = 0; index < _branchDefinitions.length; index++) {
+      if (index == _currentIndex) {
+        continue;
+      }
+
+      final branch = _branchDefinitions[index];
+      final match = branch.key == null ? null : branch.configuration.maybeMatchUri(uri);
+
+      if (match != null) {
+        candidates.add((index: index, match: match));
+      }
+    }
+
+    if (candidates.isEmpty) {
+      throw PioneerShellDeepLinkNotFound(uri);
+    }
+
+    if (candidates.length > 1) {
+      throw PioneerAmbiguousShellDeepLink(
+        uri,
+        candidates.map((candidate) => _branchDefinitions[candidate.index].key!).toList(),
+      );
+    }
+
+    return candidates.single;
+  }
+
+  ({int index, PioneerMatch match}) _resolveExplicitUri(Uri uri, LocalKey branchKey) {
+    final index = _branchDefinitions.indexWhere(
+      (branch) => branch.key == branchKey,
+    );
+
+    if (index < 0) {
+      throw PioneerShellBranchNotFound(branchKey);
+    }
+
+    final match = _branchDefinitions[index].configuration.maybeMatchUri(uri);
+
+    if (match == null) {
+      throw PioneerShellDeepLinkNotFound(uri, branchKey: branchKey);
+    }
+
+    return (index: index, match: match);
+  }
+
   @override
   void dispose() {
     for (final router in _routers) {
@@ -297,6 +362,29 @@ final class PioneerAmbiguousShellRoute implements Exception {
   @override
   String toString() => '${route.runtimeType} matches multiple Pioneer shell '
       'branches: ${branchKeys.join(', ')}. Pass branchKey explicitly.';
+}
+
+final class PioneerShellDeepLinkNotFound implements Exception {
+  const PioneerShellDeepLinkNotFound(this.uri, {this.branchKey});
+
+  final Uri uri;
+  final LocalKey? branchKey;
+
+  @override
+  String toString() => branchKey == null
+      ? 'No keyed Pioneer shell branch supports $uri.'
+      : 'Pioneer shell branch $branchKey does not support $uri.';
+}
+
+final class PioneerAmbiguousShellDeepLink implements Exception {
+  const PioneerAmbiguousShellDeepLink(this.uri, this.branchKeys);
+
+  final Uri uri;
+  final List<LocalKey> branchKeys;
+
+  @override
+  String toString() => '$uri matches multiple Pioneer shell branches: '
+      '${branchKeys.join(', ')}. Pass branchKey explicitly.';
 }
 
 /// Displays a single shell router or keeps every branch mounted.

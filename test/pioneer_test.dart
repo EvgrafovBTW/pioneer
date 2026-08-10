@@ -11,6 +11,14 @@ void main() {
       expect((match.route as ProductRoute).id, 42);
     });
 
+    test('marks only deep-link definitions as supporting deep linking', () {
+      final home = configuration.matchRoute(const HomeRoute());
+      final product = configuration.matchRoute(const ProductRoute(42));
+
+      expect(home.supportsDeepLinking, isFalse);
+      expect(product.supportsDeepLinking, isTrue);
+    });
+
     test('rejects malformed and unknown URIs', () {
       expect(
         () => configuration.matchUri(Uri(path: '/products/not-an-int')),
@@ -407,6 +415,164 @@ void main() {
         throwsA(isA<PioneerShellRouteNotFound>()),
       );
     });
+  });
+
+  testWidgets('custom scheme deep link works before and after the shell is mounted', (
+    tester,
+  ) async {
+    final shell = PioneerShellController.branches(
+      branches: [
+        _branch(profileConfiguration, 'profile'),
+        _branch(configuration, 'catalog'),
+      ],
+    );
+    final rootConfiguration = PioneerConfiguration(
+      initialRoute: const HomeRoute(),
+      routes: [
+        PioneerRouteDefinition<HomeRoute>(
+          builder: (context, route) => PioneerShellScope(
+            controller: shell,
+            child: PioneerStatefulShell(controller: shell),
+          ),
+        ),
+      ],
+    );
+    final root = PioneerRouter(
+      configuration: rootConfiguration,
+      deepLinkHandler: (uri) {
+        shell.goToUri(uri);
+
+        return const HomeRoute();
+      },
+    );
+    addTearDown(() {
+      root.dispose();
+      shell.dispose();
+    });
+
+    root.routeInformationProvider.setRouteInformation(
+      RouteInformation(uri: Uri.parse('pioneer-example://app/products/42')),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(routerConfig: root.routerConfig),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('product 42'), findsOneWidget);
+    expect(shell.currentIndex, 1);
+    expect((shell.currentBranch.currentRoute as ProductRoute).id, 42);
+
+    root.routeInformationProvider.setRouteInformation(
+      RouteInformation(uri: Uri.parse('pioneer-example://app/products/43')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('product 43'), findsOneWidget);
+    expect(shell.currentIndex, 1);
+    expect((shell.currentBranch.currentRoute as ProductRoute).id, 43);
+  });
+
+  testWidgets('root deep links are full-screen and branch roots open the shell', (tester) async {
+    final shell = PioneerShellController.branches(
+      branches: [
+        _branch(configuration, 'catalog'),
+        _branch(profileConfiguration, 'profile'),
+      ],
+    );
+    final rootConfiguration = PioneerConfiguration(
+      initialRoute: const HomeRoute(),
+      routes: [
+        PioneerRouteDefinition<HomeRoute>(
+          builder: (context, route) => PioneerShellScope(
+            controller: shell,
+            child: PioneerStatefulShell(controller: shell),
+          ),
+        ),
+        PioneerRouteDefinition<ProductRoute>.deepLink(
+          parse: (uri) {
+            if (uri.pathSegments case ['products', final rawId]) {
+              final id = int.tryParse(rawId);
+
+              return id == null ? null : ProductRoute(id);
+            }
+
+            return null;
+          },
+          builder: (context, route) => Text('full-screen product ${route.id}'),
+        ),
+      ],
+    );
+    late final PioneerRouter root;
+    root = PioneerRouter(
+      configuration: rootConfiguration,
+      deepLinkHandler: (uri) {
+        shell.goToUri(uri);
+
+        return const HomeRoute();
+      },
+    );
+    addTearDown(() {
+      root.dispose();
+      shell.dispose();
+    });
+
+    root.routeInformationProvider.setRouteInformation(
+      RouteInformation(uri: Uri.parse('pioneer-example://app/products/42')),
+    );
+
+    await tester.pumpWidget(
+      PioneerRouterScope(
+        router: root,
+        handleSystemBack: () {
+          if (root.isDeepLinkRoute) {
+            shell.resetBranches();
+            root.reset(const HomeRoute());
+
+            return true;
+          }
+
+          return shell.handleSystemBack();
+        },
+        child: MaterialApp.router(routerConfig: root.routerConfig),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('full-screen product 42'), findsOneWidget);
+    expect(root.currentRoute, isA<ProductRoute>());
+    expect(root.isDeepLinkRoute, isTrue);
+    expect(shell.currentIndex, 0);
+
+    root.push<void>(const ProductRoute(43));
+    await tester.pumpAndSettle();
+
+    expect(root.isDeepLinkRoute, isFalse);
+    expect(find.text('full-screen product 43'), findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(root.currentRoute, isA<ProductRoute>());
+    expect((root.currentRoute as ProductRoute).id, 42);
+    expect(root.isDeepLinkRoute, isTrue);
+    expect(find.text('full-screen product 42'), findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(root.currentRoute, isA<HomeRoute>());
+    expect(shell.currentIndex, 0);
+    expect(find.text('home'), findsOneWidget);
+
+    root.routeInformationProvider.setRouteInformation(
+      RouteInformation(uri: Uri.parse('pioneer-example://app/profile')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(root.currentRoute, isA<HomeRoute>());
+    expect(shell.currentIndex, 1);
+    expect(find.text('profile'), findsOneWidget);
   });
 
   testWidgets('nested shell does not duplicate navigator keys on startup/reset', (

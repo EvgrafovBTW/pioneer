@@ -14,6 +14,7 @@ PioneerConfiguration rootConfiguration({
   required PioneerRoute initialRoute,
   required PioneerRouteBuilder<RootRoute> rootBuilder,
   required PioneerRouteBuilder<AuthRoute> authBuilder,
+  required PioneerRouteBuilder<ProductRoute> productBuilder,
 }) =>
     PioneerConfiguration(
       initialRoute: initialRoute,
@@ -23,6 +24,10 @@ PioneerConfiguration rootConfiguration({
         ),
         PioneerRouteDefinition<AuthRoute>(
           builder: authBuilder,
+        ),
+        PioneerRouteDefinition<ProductRoute>.deepLink(
+          parse: parseProductRoute,
+          builder: productBuilder,
         ),
       ],
     );
@@ -58,23 +63,25 @@ final catalogConfiguration = PioneerConfiguration(
       builder: (context, route) => const CatalogPage(),
     ),
     PioneerRouteDefinition<ProductRoute>.deepLink(
-      parse: (uri) {
-        final segments = uri.pathSegments;
-
-        if (segments.length != 3 || segments[0] != 'catalog' || segments[1] != 'product') {
-          return null;
-        }
-
-        final id = int.tryParse(segments[2]);
-
-        return id == null ? null : ProductRoute(id: id);
-      },
+      parse: parseProductRoute,
       builder: (context, route) {
         return ProductScreen(id: route.id);
       },
     ),
   ],
 );
+
+ProductRoute? parseProductRoute(Uri uri) {
+  final segments = uri.pathSegments;
+
+  if (segments.length != 3 || segments[0] != 'catalog' || segments[1] != 'product') {
+    return null;
+  }
+
+  final id = int.tryParse(segments[2]);
+
+  return id == null ? null : ProductRoute(id: id);
+}
 
 final profileConfiguration = PioneerConfiguration(
   initialRoute: const ProfileRoute(),

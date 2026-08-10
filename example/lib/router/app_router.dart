@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 export 'app_routes.dart';
+export 'auth_routes.dart';
 export 'catalog_routes.dart';
 export 'configurations.dart';
 export 'home_routes.dart';

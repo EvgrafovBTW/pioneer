@@ -5,6 +5,7 @@ import 'route.dart';
 import 'stack.dart';
 
 typedef PioneerSystemBackHandler = bool Function();
+typedef PioneerDeepLinkHandler = PioneerRoute? Function(Uri uri);
 
 final class PioneerRoutePath {
   const PioneerRoutePath(this.match);
@@ -14,18 +15,54 @@ final class PioneerRoutePath {
 }
 
 final class PioneerRouteInformationParser extends RouteInformationParser<PioneerRoutePath> {
-  const PioneerRouteInformationParser(this.configuration);
+  const PioneerRouteInformationParser(
+    this.configuration, {
+    this.deepLinkHandler,
+  });
 
   final PioneerConfiguration configuration;
+  final PioneerDeepLinkHandler? deepLinkHandler;
 
   @override
   Future<PioneerRoutePath> parseRouteInformation(
     RouteInformation routeInformation,
   ) async {
-    final uri =
-        routeInformation.uri.path.isEmpty ? configuration.initialRoute.uri : routeInformation.uri;
+    final state = routeInformation.state;
 
-    return PioneerRoutePath(configuration.matchUri(uri));
+    if (state is PioneerMatch) {
+      return PioneerRoutePath(state);
+    }
+
+    final uri = _normalizeUri(routeInformation.uri);
+    final match = configuration.maybeMatchUri(uri);
+
+    if (match != null) {
+      return PioneerRoutePath(match);
+    }
+
+    final route = deepLinkHandler?.call(uri);
+
+    if (route == null) {
+      throw PioneerRouteNotFound(uri);
+    }
+
+    return PioneerRoutePath(configuration.matchRoute(route));
+  }
+
+  Uri _normalizeUri(Uri uri) {
+    if (uri.path.isEmpty) {
+      return configuration.initialRoute.uri;
+    }
+
+    if (!uri.hasScheme && !uri.hasAuthority) {
+      return uri;
+    }
+
+    return Uri(
+      path: uri.path,
+      query: uri.hasQuery ? uri.query : null,
+      fragment: uri.hasFragment ? uri.fragment : null,
+    );
   }
 
   @override
@@ -33,13 +70,54 @@ final class PioneerRouteInformationParser extends RouteInformationParser<Pioneer
       RouteInformation(uri: configuration.uri);
 }
 
-final class PioneerRouteInformationProvider extends RouteInformationProvider with ChangeNotifier {
-  PioneerRouteInformationProvider(Uri initialUri) : _value = RouteInformation(uri: initialUri);
+final class PioneerRouteInformationProvider extends RouteInformationProvider
+    with WidgetsBindingObserver, ChangeNotifier {
+  PioneerRouteInformationProvider(
+    Uri initialUri, {
+    required this.handlesPlatformRoutes,
+  }) : _value = RouteInformation(uri: initialUri);
 
   RouteInformation _value;
+  final bool handlesPlatformRoutes;
+  bool _readInitialPlatformRoute = false;
 
   @override
   RouteInformation get value => _value;
+
+  @override
+  void addListener(VoidCallback listener) {
+    if (!hasListeners && handlesPlatformRoutes) {
+      if (!_readInitialPlatformRoute) {
+        _readInitialPlatformRoute = true;
+
+        final defaultRouteName = WidgetsBinding.instance.platformDispatcher.defaultRouteName;
+
+        if (defaultRouteName != Navigator.defaultRouteName) {
+          _value = RouteInformation(uri: Uri.parse(defaultRouteName));
+        }
+      }
+
+      WidgetsBinding.instance.addObserver(this);
+    }
+
+    super.addListener(listener);
+  }
+
+  @override
+  void removeListener(VoidCallback listener) {
+    super.removeListener(listener);
+
+    if (!hasListeners && handlesPlatformRoutes) {
+      WidgetsBinding.instance.removeObserver(this);
+    }
+  }
+
+  @override
+  Future<bool> didPushRouteInformation(RouteInformation routeInformation) async {
+    setRouteInformation(routeInformation);
+
+    return true;
+  }
 
   @override
   void routerReportsNewRouteInformation(
@@ -63,6 +141,23 @@ final class PioneerRouteInformationProvider extends RouteInformationProvider wit
 
     _value = routeInformation;
     notifyListeners();
+  }
+
+  /// Keeps a route selected before its Router widget is mounted.
+  void setInternalMatch(PioneerMatch match) {
+    _value = RouteInformation(
+      uri: match.route.uri,
+      state: match,
+    );
+  }
+
+  @override
+  void dispose() {
+    if (hasListeners && handlesPlatformRoutes) {
+      WidgetsBinding.instance.removeObserver(this);
+    }
+
+    super.dispose();
   }
 }
 

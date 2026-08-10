@@ -17,15 +17,20 @@ typedef PioneerRouteBuilder<R extends PioneerRoute> = Widget Function(
 final class PioneerRouteDefinition<R extends PioneerRoute> implements PioneerRouteDefinitionBase {
   const PioneerRouteDefinition({
     required this.builder,
-  }) : _parse = null;
+  })  : supportsDeepLinking = false,
+        _parse = null;
 
   const PioneerRouteDefinition.deepLink({
     required PioneerRouteParser<R> parse,
     required this.builder,
-  }) : _parse = parse;
+  })  : supportsDeepLinking = true,
+        _parse = parse;
 
   final PioneerRouteParser<R>? _parse;
   final PioneerRouteBuilder<R> builder;
+
+  @override
+  final bool supportsDeepLinking;
 
   @override
   PioneerMatch? match(Uri uri) {
@@ -48,6 +53,7 @@ final class PioneerRouteDefinition<R extends PioneerRoute> implements PioneerRou
     return PioneerMatch(
       route: route,
       build: (context) => builder(context, route),
+      supportsDeepLinking: supportsDeepLinking,
     );
   }
 
@@ -60,6 +66,7 @@ final class PioneerRouteDefinition<R extends PioneerRoute> implements PioneerRou
     return PioneerMatch(
       route: route,
       build: (context) => builder(context, route),
+      supportsDeepLinking: supportsDeepLinking,
     );
   }
 }
@@ -67,16 +74,23 @@ final class PioneerRouteDefinition<R extends PioneerRoute> implements PioneerRou
 abstract interface class PioneerRouteDefinitionBase {
   const PioneerRouteDefinitionBase();
 
+  bool get supportsDeepLinking;
+
   PioneerMatch? match(Uri uri);
   PioneerMatch? matchRoute(PioneerRoute route);
 }
 
 /// A successfully parsed URI and its already type-bound screen builder.
 final class PioneerMatch {
-  const PioneerMatch({required this.route, required this.build});
+  const PioneerMatch({
+    required this.route,
+    required this.build,
+    required this.supportsDeepLinking,
+  });
 
   final PioneerRoute route;
   final WidgetBuilder build;
+  final bool supportsDeepLinking;
 }
 
 final class PioneerRouteNotFound implements Exception {

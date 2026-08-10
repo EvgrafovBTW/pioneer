@@ -16,6 +16,16 @@ final class PioneerConfiguration {
   final List<PioneerRouteDefinitionBase> routes;
 
   PioneerMatch matchUri(Uri uri) {
+    final match = maybeMatchUri(uri);
+
+    if (match != null) {
+      return match;
+    }
+
+    throw PioneerRouteNotFound(uri);
+  }
+
+  PioneerMatch? maybeMatchUri(Uri uri) {
     for (final definition in routes) {
       final match = definition.match(uri);
 
@@ -28,7 +38,7 @@ final class PioneerConfiguration {
       return matchRoute(initialRoute);
     }
 
-    throw PioneerRouteNotFound(uri);
+    return null;
   }
 
   PioneerMatch matchRoute(PioneerRoute route) {

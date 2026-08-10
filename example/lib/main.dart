@@ -1,4 +1,5 @@
 import 'package:example/features/core/root_screen.dart';
+import 'package:example/features/product/product_screen.dart';
 import 'package:example/router/app_router.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,16 @@ void main() {
       authBuilder: (context, route) => PioneerShellScope(
         controller: authShell,
       ),
+      productBuilder: (context, route) => PioneerShellScope(
+        controller: branchShell,
+        child: ProductScreen(id: route.id),
+      ),
     ),
+    deepLinkHandler: (uri) {
+      branchShell.goToUri(uri);
+
+      return const RootRoute();
+    },
   );
 
   runApp(
@@ -72,6 +82,12 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   bool _handleSystemBack() {
+    if (widget.rootRouter.isDeepLinkRoute) {
+      _openDefaultRoot();
+
+      return true;
+    }
+
     final shell =
         widget.rootRouter.currentRoute is AuthRoute ? widget.authShell : widget.branchShell;
     final value = shell.handleSystemBack();
@@ -86,6 +102,11 @@ class _MainAppState extends State<MainApp> {
     }
 
     return value;
+  }
+
+  void _openDefaultRoot() {
+    widget.branchShell.resetBranches();
+    widget.rootRouter.reset(const RootRoute());
   }
 
   @override
