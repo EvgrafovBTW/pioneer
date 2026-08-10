@@ -16,13 +16,13 @@ class CatalogPage extends StatelessWidget {
             const Text('Catalog branch'),
             FilledButton(
               key: const Key('catalog-product'),
-              onPressed: () =>
-                  PioneerRouterScope.of(context).push<void>(const ProductRoute(id: 42)),
+              onPressed: () {
+                PioneerRouterScope.of(context).push<void>(const ProductRoute(id: 42));
+              },
               child: const Text('Open product inside branch'),
             ),
             TextButton(
-              onPressed: () =>
-                  PioneerRouterScope.rootOf(context).push<void>(const AdminRoute()),
+              onPressed: () => PioneerRouterScope.rootOf(context).push<void>(const AdminRoute()),
               child: const Text('Open admin'),
             ),
           ],

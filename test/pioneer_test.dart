@@ -284,11 +284,9 @@ void main() {
       initialRoute: const HomeRoute(),
       routes: [
         PioneerRouteDefinition<HomeRoute>(
-          parse: (uri) => uri.path == '/' ? const HomeRoute() : null,
           builder: (context, route) => PioneerStatefulShell(controller: shell),
         ),
         PioneerRouteDefinition<ProfileRoute>(
-          parse: (uri) => uri.path == '/profile' ? const ProfileRoute() : null,
           builder: (context, route) => const Text('root admin'),
         ),
       ],
@@ -374,21 +372,21 @@ final configuration = PioneerConfiguration(
   initialRoute: const HomeRoute(),
   routes: [
     PioneerRouteDefinition<HomeRoute>(
-      parse: (uri) => uri.path == '/' ? const HomeRoute() : null,
       builder: (context, route) => const Text('home'),
     ),
-    PioneerRouteDefinition<ProductRoute>(
+    PioneerRouteDefinition<ProductRoute>.deepLink(
       parse: (uri) {
         if (uri.pathSegments.length != 2 || uri.pathSegments.first != 'products') {
           return null;
         }
+
         final id = int.tryParse(uri.pathSegments.last);
+
         return id == null ? null : ProductRoute(id);
       },
       builder: (context, route) => Text('product ${route.id}'),
     ),
     PioneerRouteDefinition<ProfileRoute>(
-      parse: (uri) => uri.path == '/profile' ? const ProfileRoute() : null,
       builder: (context, route) => const Text('profile'),
     ),
   ],
@@ -398,7 +396,6 @@ final counterConfiguration = PioneerConfiguration(
   initialRoute: const HomeRoute(),
   routes: [
     PioneerRouteDefinition<HomeRoute>(
-      parse: (uri) => uri.path == '/' ? const HomeRoute() : null,
       builder: (context, route) => const _CounterPage(),
     ),
   ],
@@ -413,13 +410,6 @@ final productConfiguration = PioneerConfiguration(
   initialRoute: const ProductRoute(0),
   routes: [
     PioneerRouteDefinition<ProductRoute>(
-      parse: (uri) {
-        if (uri.pathSegments.length != 2 || uri.pathSegments.first != 'products') {
-          return null;
-        }
-        final id = int.tryParse(uri.pathSegments.last);
-        return id == null ? null : ProductRoute(id);
-      },
       builder: (context, route) => Text('product ${route.id}'),
     ),
   ],
@@ -429,7 +419,6 @@ final profileConfiguration = PioneerConfiguration(
   initialRoute: const ProfileRoute(),
   routes: [
     PioneerRouteDefinition<ProfileRoute>(
-      parse: (uri) => uri.path == '/profile' ? const ProfileRoute() : null,
       builder: (context, route) => const Text('profile'),
     ),
   ],

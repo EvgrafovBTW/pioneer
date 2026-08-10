@@ -24,6 +24,10 @@ final class PioneerConfiguration {
       }
     }
 
+    if (initialRoute.uri == uri) {
+      return matchRoute(initialRoute);
+    }
+
     throw PioneerRouteNotFound(uri);
   }
 

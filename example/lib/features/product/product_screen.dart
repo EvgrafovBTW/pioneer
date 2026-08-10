@@ -22,8 +22,7 @@ class ProductScreen extends StatelessWidget {
             ),
             TextButton(
               key: const Key('product-admin'),
-              onPressed: () =>
-                  PioneerRouterScope.rootOf(context).push<void>(const AdminRoute()),
+              onPressed: () => PioneerRouterScope.rootOf(context).push<void>(const AdminRoute()),
               child: const Text('Open admin'),
             ),
             TextButton(

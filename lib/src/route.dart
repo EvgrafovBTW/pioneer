@@ -16,15 +16,25 @@ typedef PioneerRouteBuilder<R extends PioneerRoute> = Widget Function(
 /// Describes how one concrete route type is parsed and rendered.
 final class PioneerRouteDefinition<R extends PioneerRoute> implements PioneerRouteDefinitionBase {
   const PioneerRouteDefinition({
-    required this.parse,
     required this.builder,
-  });
+  }) : _parse = null;
 
-  final PioneerRouteParser<R> parse;
+  const PioneerRouteDefinition.deepLink({
+    required PioneerRouteParser<R> parse,
+    required this.builder,
+  }) : _parse = parse;
+
+  final PioneerRouteParser<R>? _parse;
   final PioneerRouteBuilder<R> builder;
 
   @override
   PioneerMatch? match(Uri uri) {
+    final parse = _parse;
+
+    if (parse == null) {
+      return null;
+    }
+
     final route = parse(uri);
 
     if (route == null) {

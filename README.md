@@ -19,12 +19,17 @@ final class ProductRoute implements PioneerRoute {
 final configuration = PioneerConfiguration(
   initialRoute: const HomeRoute(),
   routes: [
-    PioneerRouteDefinition<ProductRoute>(
+    PioneerRouteDefinition<HomeRoute>(
+      builder: (context, route) => const HomeScreen(),
+    ),
+    PioneerRouteDefinition<ProductRoute>.deepLink(
       parse: (uri) {
         if (uri.pathSegments case ['products', final rawId]) {
           final id = int.tryParse(rawId);
+
           return id == null ? null : ProductRoute(productId: id);
         }
+
         return null;
       },
       builder: (context, route) => ProductScreen(id: route.productId),
