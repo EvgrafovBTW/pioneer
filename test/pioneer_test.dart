@@ -289,7 +289,7 @@ void main() {
         ),
         PioneerRouteDefinition<ProfileRoute>(
           parse: (uri) => uri.path == '/profile' ? const ProfileRoute() : null,
-          builder: (context, route) => const Text('root overlay'),
+          builder: (context, route) => const Text('root admin'),
         ),
       ],
     );
@@ -312,7 +312,7 @@ void main() {
     await tester.tap(find.byKey(const Key('increment')));
     root.push<void>(const ProfileRoute());
     await tester.pumpAndSettle();
-    expect(find.text('root overlay'), findsOneWidget);
+    expect(find.text('root admin'), findsOneWidget);
 
     shell.resetBranches();
     root.popToRoot();

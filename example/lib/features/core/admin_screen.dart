@@ -1,27 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:pioneer/pioneer.dart';
 
-class OverlayScreen extends StatelessWidget {
-  const OverlayScreen({super.key, required this.shell});
+class AdminScreen extends StatelessWidget {
+  const AdminScreen({super.key, required this.shell});
 
   final PioneerShellController shell;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Above bottom bar')),
+      appBar: AppBar(title: const Text('Admin')),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('This page covers the complete shell.'),
+            const Text('Admin page is opened above the bottom bar.'),
+
             const SizedBox(height: 16),
+
             FilledButton(
               onPressed: () => PioneerRouterScope.of(context).pop(),
-              child: const Text('Close'),
+              child: const Text('Close admin'),
             ),
+
             TextButton.icon(
-              key: const Key('overlay-reset-all'),
+              key: const Key('admin-reset-all'),
               onPressed: () {
                 shell.resetBranches();
                 PioneerRouterScope.rootOf(context).popToRoot();

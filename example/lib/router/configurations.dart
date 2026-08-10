@@ -1,5 +1,5 @@
 import 'package:example/features/catalog/catalog_page.dart';
-import 'package:example/features/core/overlay_screen.dart';
+import 'package:example/features/core/admin_screen.dart';
 import 'package:example/features/core/root_screen.dart';
 import 'package:example/features/home/home_page.dart';
 import 'package:example/features/product/product_screen.dart';
@@ -11,15 +11,15 @@ import 'package:example/router/profile_routes.dart';
 import 'package:pioneer/pioneer.dart';
 
 PioneerConfiguration rootConfiguration(PioneerShellController shell) => PioneerConfiguration(
-      initialRoute: const ShellRoute(),
+      initialRoute: const RootRoute(),
       routes: [
-        PioneerRouteDefinition<ShellRoute>(
-          parse: (uri) => uri.path == '/' ? const ShellRoute() : null,
+        PioneerRouteDefinition<RootRoute>(
+          parse: (uri) => uri.path == '/' ? const RootRoute() : null,
           builder: (context, route) => RootScreen(shell: shell),
         ),
-        PioneerRouteDefinition<AppOverlayRoute>(
-          parse: (uri) => uri.path == '/overlay' ? const AppOverlayRoute() : null,
-          builder: (context, route) => OverlayScreen(shell: shell),
+        PioneerRouteDefinition<AdminRoute>(
+          parse: (uri) => uri.path == '/admin' ? const AdminRoute() : null,
+          builder: (context, route) => AdminScreen(shell: shell),
         ),
       ],
     );

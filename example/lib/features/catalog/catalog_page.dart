@@ -22,8 +22,8 @@ class CatalogPage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () =>
-                  PioneerRouterScope.rootOf(context).push<void>(const AppOverlayRoute()),
-              child: const Text('Open above bottom bar'),
+                  PioneerRouterScope.rootOf(context).push<void>(const AdminRoute()),
+              child: const Text('Open admin'),
             ),
           ],
         ),

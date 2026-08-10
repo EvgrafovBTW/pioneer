@@ -21,10 +21,10 @@ class ProductScreen extends StatelessWidget {
               child: const Text('Back to catalog'),
             ),
             TextButton(
-              key: const Key('product-overlay'),
+              key: const Key('product-admin'),
               onPressed: () =>
-                  PioneerRouterScope.rootOf(context).push<void>(const AppOverlayRoute()),
-              child: const Text('Open above bottom bar'),
+                  PioneerRouterScope.rootOf(context).push<void>(const AdminRoute()),
+              child: const Text('Open admin'),
             ),
             TextButton(
               key: const Key('product-to-home-details'),

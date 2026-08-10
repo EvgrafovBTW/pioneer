@@ -33,10 +33,10 @@ class _HomePageState extends State<HomePage> {
               child: const Text('Open inside Home branch'),
             ),
             TextButton(
-              key: const Key('home-overlay'),
+              key: const Key('home-admin'),
               onPressed: () =>
-                  PioneerRouterScope.rootOf(context).push<void>(const AppOverlayRoute()),
-              child: const Text('Open above bottom bar'),
+                  PioneerRouterScope.rootOf(context).push<void>(const AdminRoute()),
+              child: const Text('Open admin'),
             ),
           ],
         ),
@@ -64,8 +64,8 @@ class HomeDetailsPage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () =>
-                  PioneerRouterScope.rootOf(context).push<void>(const AppOverlayRoute()),
-              child: const Text('Open above bottom bar'),
+                  PioneerRouterScope.rootOf(context).push<void>(const AdminRoute()),
+              child: const Text('Open admin'),
             ),
           ],
         ),
