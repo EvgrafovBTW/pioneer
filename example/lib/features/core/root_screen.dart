@@ -2,17 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:pioneer/pioneer.dart';
 
 class RootScreen extends StatelessWidget {
-  const RootScreen({
-    super.key,
-    required this.shell,
-    required this.onResetNavigation,
-  });
-
-  final PioneerShellController shell;
-  final VoidCallback onResetNavigation;
+  const RootScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final shell = context.pioneerShell;
+
     return ListenableBuilder(
       listenable: shell,
       builder: (context, child) => Scaffold(
@@ -22,7 +17,7 @@ class RootScreen extends StatelessWidget {
             IconButton(
               key: const Key('reset-all'),
               tooltip: 'Reset all navigation',
-              onPressed: onResetNavigation,
+              onPressed: () => _resetNavigation(context),
               icon: const Icon(Icons.restart_alt),
             ),
           ],
@@ -47,5 +42,10 @@ class RootScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _resetNavigation(BuildContext context) {
+    context.resetBranches();
+    context.popToRoot();
   }
 }

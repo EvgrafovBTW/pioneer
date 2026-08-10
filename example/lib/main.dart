@@ -38,21 +38,17 @@ class _MainAppState extends State<MainApp> {
     );
     rootRouter = PioneerRouter(
       configuration: rootConfiguration(
-        rootBuilder: (context, route) => RootScreen(
-          shell: shell,
-          onResetNavigation: _resetNavigation,
+        rootBuilder: (context, route) => PioneerShellScope(
+          controller: shell,
+          child: const RootScreen(),
         ),
-        adminBuilder: (context, route) => AdminScreen(
-          onResetNavigation: _resetNavigation,
+        adminBuilder: (context, route) => PioneerShellScope(
+          controller: shell,
+          child: const AdminScreen(),
         ),
       ),
       onPopFallback: _handleSystemBack,
     );
-  }
-
-  void _resetNavigation() {
-    shell.resetBranches();
-    rootRouter.popToRoot();
   }
 
   bool _handleSystemBack() {

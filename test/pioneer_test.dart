@@ -110,6 +110,61 @@ void main() {
     expect((router.currentRoute as ProductRoute).id, 42);
   });
 
+  testWidgets('BuildContext shortcuts resolve controllers and navigate', (tester) async {
+    late BuildContext pageContext;
+
+    final shortcutConfiguration = PioneerConfiguration(
+      initialRoute: const HomeRoute(),
+      routes: [
+        PioneerRouteDefinition<HomeRoute>(
+          builder: (context, route) {
+            pageContext = context;
+
+            return const Text('shortcut home');
+          },
+        ),
+        PioneerRouteDefinition<ProductRoute>(
+          builder: (context, route) => Text('shortcut product ${route.id}'),
+        ),
+      ],
+    );
+    final root = PioneerRouter(configuration: shortcutConfiguration);
+    final shell = PioneerShellController(
+      branches: [
+        _branch(configuration, 'first'),
+        _branch(configuration, 'second'),
+      ],
+    );
+    addTearDown(() {
+      root.dispose();
+      shell.dispose();
+    });
+
+    await tester.pumpWidget(
+      PioneerRouterScope(
+        router: root,
+        child: PioneerShellScope(
+          controller: shell,
+          child: MaterialApp.router(routerConfig: root.routerConfig),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(pageContext.pioneerRouter, same(root));
+    expect(pageContext.pioneerRootRouter, same(root));
+    expect(pageContext.pioneerShell, same(shell));
+
+    pageContext.push<void>(const ProductRoute(12));
+    expect((root.currentRoute as ProductRoute).id, 12);
+
+    pageContext.pop();
+    expect(root.currentRoute, isA<HomeRoute>());
+
+    pageContext.goBranch(1);
+    expect(shell.currentIndex, 1);
+  });
+
   testWidgets('stateful shell preserves branch state and resets all branches', (
     tester,
   ) async {

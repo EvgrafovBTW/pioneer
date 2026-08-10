@@ -49,6 +49,28 @@ final router = PioneerRouter(configuration: configuration);
 MaterialApp.router(routerConfig: router.routerConfig);
 ```
 
+## BuildContext shortcuts
+
+When the corresponding scopes are available, navigation can be invoked directly
+from `BuildContext`:
+
+```dart
+context.push<void>(const ProductRoute(productId: 42));
+context.pop();
+context.pushRoot<void>(const AdminRoute());
+context.goTo(const HomeDetailsRoute());
+context.resetBranches();
+context.popToRoot();
+```
+
+The controllers remain available for explicit access:
+
+```dart
+context.pioneerRouter;
+context.pioneerRootRouter;
+context.pioneerShell;
+```
+
 Each `PioneerRouter` owns an independent stack, so it can also back a nested
 `Router` inside a dialog, sheet, tab, or another local widget subtree.
 

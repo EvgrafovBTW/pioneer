@@ -17,17 +17,17 @@ class ProductScreen extends StatelessWidget {
           children: [
             Text('Product $id'),
             FilledButton(
-              onPressed: () => PioneerRouterScope.of(context).pop(),
+              onPressed: context.pop,
               child: const Text('Back to catalog'),
             ),
             TextButton(
               key: const Key('product-admin'),
-              onPressed: () => PioneerRouterScope.rootOf(context).push<void>(const AdminRoute()),
+              onPressed: () => context.pushRoot<void>(const AdminRoute()),
               child: const Text('Open admin'),
             ),
             TextButton(
               key: const Key('product-to-home-details'),
-              onPressed: () => PioneerShellScope.of(context).goTo(
+              onPressed: () => context.goTo(
                 const HomeDetailsRoute(),
               ),
               child: const Text('Go to Home details'),

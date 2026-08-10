@@ -29,13 +29,12 @@ class _HomePageState extends State<HomePage> {
             ),
             OutlinedButton(
               key: const Key('home-details'),
-              onPressed: () => PioneerRouterScope.of(context).push<void>(const HomeDetailsRoute()),
+              onPressed: () => context.push<void>(const HomeDetailsRoute()),
               child: const Text('Open inside Home branch'),
             ),
             TextButton(
               key: const Key('home-admin'),
-              onPressed: () =>
-                  PioneerRouterScope.rootOf(context).push<void>(const AdminRoute()),
+              onPressed: () => context.pushRoot<void>(const AdminRoute()),
               child: const Text('Open admin'),
             ),
           ],
@@ -58,13 +57,12 @@ class HomeDetailsPage extends StatelessWidget {
             const Text('Home details'),
             FilledButton(
               onPressed: () {
-                PioneerRouterScope.of(context).pop();
+                context.pop();
               },
               child: const Text('Back inside branch'),
             ),
             TextButton(
-              onPressed: () =>
-                  PioneerRouterScope.rootOf(context).push<void>(const AdminRoute()),
+              onPressed: () => context.pushRoot<void>(const AdminRoute()),
               child: const Text('Open admin'),
             ),
           ],
