@@ -5,6 +5,7 @@ import 'route.dart';
 import 'stack.dart';
 
 typedef PioneerSystemBackHandler = bool Function();
+typedef PioneerSystemBackCallback = void Function();
 typedef PioneerDeepLinkHandler = PioneerRoute? Function(Uri uri);
 
 final class PioneerRoutePath {

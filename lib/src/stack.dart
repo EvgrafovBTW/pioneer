@@ -39,6 +39,7 @@ final class PioneerStack extends ChangeNotifier {
   PioneerRoute get currentRoute => _entries.last.route;
   PioneerMatch get currentMatch => _entries.last.match;
   bool get canPop => _entries.length > 1;
+  bool get isDeepLinkRoute => _entries.length == 1 && currentMatch.supportsDeepLinking;
 
   Future<T?> push<T>(PioneerRoute route) {
     final entry = _Entry<T>(configuration.matchRoute(route), _nextKey());

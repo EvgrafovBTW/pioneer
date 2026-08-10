@@ -10,24 +10,24 @@ class ProductScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final router = context.pioneerRouter;
-    final returnsToHome = identical(router, context.pioneerRootRouter) && router.isDeepLinkRoute;
-
     return Scaffold(
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('Product $id'),
+
             FilledButton(
-              onPressed: () => _handleBack(context, returnsToHome),
-              child: Text(returnsToHome ? 'Back to home' : 'Back'),
+              onPressed: context.pop,
+              child: const Text('Back'),
             ),
+
             TextButton(
               key: const Key('product-auth'),
               onPressed: () => context.pushRoot<void>(const AuthRoute()),
               child: const Text('Open auth'),
             ),
+
             TextButton(
               key: const Key('product-to-home-details'),
               onPressed: () => context.goTo(
@@ -39,16 +39,5 @@ class ProductScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _handleBack(BuildContext context, bool returnsToHome) {
-    if (!returnsToHome) {
-      context.pop();
-
-      return;
-    }
-
-    context.resetBranches();
-    context.resetRoot(const RootRoute());
   }
 }

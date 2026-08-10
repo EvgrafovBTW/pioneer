@@ -74,12 +74,27 @@ final rootRouter = PioneerRouter(
 `goToUri` follows the same branch rules as `goTo`: the active keyed branch is
 preferred, exactly one other keyed branch may match, and ambiguity throws an
 exception. A system or UI Back from the full-screen product resets all branches
-and opens the default `RootRoute` only when the root stack contains exactly one
-route declared with `PioneerRouteDefinition.deepLink`. This is exposed as
-`rootRouter.isDeepLinkRoot`; no concrete route type is checked. If another
-full-screen product was pushed above it, normal Back pops to the previous
-product first. The behavior is the same on cold and warm application starts.
-Test the example on a connected Android device with:
+and opens the router's default route through the built-in system Back policy.
+No handler is required in the application:
+
+```dart
+PioneerRouterScope(
+  router: rootRouter,
+  child: MaterialApp.router(routerConfig: rootRouter.routerConfig),
+);
+```
+
+Each root definition declares its shell once through `shell`. The resulting
+`PioneerMatch` carries that association, so `rootRouter.currentShell` resolves
+the controller without checking `RootRoute`, `AuthRoute`, or any other concrete
+route type.
+
+When `PioneerRouter.pop` reaches a sole deep-link entry, it delegates to the
+same `handleSystemBack` instead of requiring route-specific behavior. If
+another full-screen product was pushed above it, normal Back pops to the
+previous product first. `ProductScreen` only calls `context.pop()` and does not
+inspect router internals. The behavior is the same on cold and warm application
+starts. Test the example on a connected Android device with:
 
 ```shell
 adb shell am start -W \
@@ -210,6 +225,8 @@ final PioneerRoute initialRoute = needAuth ? const AuthRoute() : const RootRoute
 final rootRouter = PioneerRouter(
   configuration: rootConfiguration(
     initialRoute: initialRoute,
+    rootShell: branchShell,
+    authShell: authShell,
     rootBuilder: (context, route) => PioneerShellScope(
       controller: branchShell,
       child: const RootScreen(),
@@ -237,20 +254,37 @@ authBuilder: (context, route) => PioneerShellScope(
 ),
 ```
 
-Connect Android system Back to the shell where the root router enters the widget tree:
+System Back is configured where the root router enters the widget tree. By
+default no callbacks are necessary:
 
 ```dart
 PioneerRouterScope(
   router: rootRouter,
-  handleSystemBack: shell.handleSystemBack,
   child: MaterialApp.router(routerConfig: rootRouter.routerConfig),
 );
 ```
 
-The handler pops the active branch, then returns a branch root to the shell's
-initial branch. It returns `false` only at the initial branch root, allowing the
-platform to close the application. The parameter is nullable; without it, an
-unhandled Back action is passed to the platform.
+Use `onSystemBack` to run additional code before the built-in algorithm:
+
+```dart
+PioneerRouterScope(
+  router: rootRouter,
+  onSystemBack: () => analytics.trackSystemBack(),
+  child: app,
+);
+```
+
+Use `handleSystemBack` for a complete override. When it is non-null, neither
+the built-in algorithm nor `onSystemBack` is called:
+
+```dart
+PioneerRouterScope(
+  router: rootRouter,
+  onSystemBack: () => analytics.trackSystemBack(),
+  handleSystemBack: customSystemBackHandler,
+  child: app,
+);
+```
 
 From a branch page, `goTo` resolves and activates a keyed branch. It prefers
 the active branch, then requires exactly one matching branch. An ambiguous

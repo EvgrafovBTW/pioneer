@@ -16,7 +16,7 @@ final class PioneerShellBranch {
 }
 
 /// Owns either one navigation stack or independent stacks for shell branches.
-final class PioneerShellController extends ChangeNotifier {
+final class PioneerShellController extends ChangeNotifier implements PioneerShellNavigation {
   factory PioneerShellController.branches({
     required Iterable<PioneerShellBranch> branches,
     int initialIndex = 0,
@@ -188,11 +188,23 @@ final class PioneerShellController extends ChangeNotifier {
     }
   }
 
+  @override
+  void reset() {
+    if (isSingle) {
+      router.reset();
+
+      return;
+    }
+
+    resetBranches();
+  }
+
   /// Handles system Back after the root router has exhausted its own stack.
   ///
   /// Pops the active branch first. At a non-initial branch root, switches to
   /// the initial branch. Returns false only at the initial branch root so the
   /// platform can close the application.
+  @override
   bool handleSystemBack() {
     final currentRouter = _routers[_currentIndex];
 

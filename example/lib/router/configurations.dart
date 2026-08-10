@@ -12,6 +12,8 @@ import 'package:pioneer/pioneer.dart';
 
 PioneerConfiguration rootConfiguration({
   required PioneerRoute initialRoute,
+  required PioneerShellNavigation rootShell,
+  required PioneerShellNavigation authShell,
   required PioneerRouteBuilder<RootRoute> rootBuilder,
   required PioneerRouteBuilder<AuthRoute> authBuilder,
   required PioneerRouteBuilder<ProductRoute> productBuilder,
@@ -21,13 +23,16 @@ PioneerConfiguration rootConfiguration({
       routes: [
         PioneerRouteDefinition<RootRoute>(
           builder: rootBuilder,
+          shell: rootShell,
         ),
         PioneerRouteDefinition<AuthRoute>(
           builder: authBuilder,
+          shell: authShell,
         ),
         PioneerRouteDefinition<ProductRoute>.deepLink(
           parse: parseProductRoute,
           builder: productBuilder,
+          shell: rootShell,
         ),
       ],
     );

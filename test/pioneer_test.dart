@@ -19,6 +19,17 @@ void main() {
       expect(product.supportsDeepLinking, isTrue);
     });
 
+    test('route definitions display their generic route type', () {
+      expect(
+        configuration.routes.first.toString(),
+        'PioneerRouteDefinition(HomeRoute)',
+      );
+      expect(
+        configuration.routes[1].toString(),
+        'PioneerRouteDefinition(ProductRoute)',
+      );
+    });
+
     test('rejects malformed and unknown URIs', () {
       expect(
         () => configuration.matchUri(Uri(path: '/products/not-an-int')),
@@ -277,7 +288,7 @@ void main() {
       ],
     );
     final root = PioneerRouter(configuration: configuration);
-    root.handleSystemBack = shell.handleSystemBack;
+    root.routerDelegate.handleSystemBack = shell.handleSystemBack;
     addTearDown(() {
       root.dispose();
       shell.dispose();
@@ -297,7 +308,7 @@ void main() {
       ],
     );
     final root = PioneerRouter(configuration: configuration);
-    root.handleSystemBack = shell.handleSystemBack;
+    root.routerDelegate.handleSystemBack = shell.handleSystemBack;
     addTearDown(() {
       root.dispose();
       shell.dispose();
@@ -312,14 +323,16 @@ void main() {
 
   testWidgets('router scope installs and removes its system back handler', (tester) async {
     final root = PioneerRouter(configuration: configuration);
-    var calls = 0;
+    var overrideCalls = 0;
+    var callbackCalls = 0;
     addTearDown(root.dispose);
 
     await tester.pumpWidget(
       PioneerRouterScope(
         router: root,
+        onSystemBack: () => callbackCalls++,
         handleSystemBack: () {
-          calls++;
+          overrideCalls++;
 
           return true;
         },
@@ -329,18 +342,21 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(await root.routerDelegate.popRoute(), isTrue);
-    expect(calls, 1);
+    expect(overrideCalls, 1);
+    expect(callbackCalls, 0);
 
     await tester.pumpWidget(
       PioneerRouterScope(
         router: root,
+        onSystemBack: () => callbackCalls++,
         child: MaterialApp.router(routerConfig: root.routerConfig),
       ),
     );
     await tester.pump();
 
     expect(await root.routerDelegate.popRoute(), isFalse);
-    expect(calls, 1);
+    expect(overrideCalls, 1);
+    expect(callbackCalls, 1);
   });
 
   group('PioneerShellController.goTo', () {
@@ -434,6 +450,7 @@ void main() {
             controller: shell,
             child: PioneerStatefulShell(controller: shell),
           ),
+          shell: shell,
         ),
       ],
     );
@@ -480,6 +497,7 @@ void main() {
         _branch(profileConfiguration, 'profile'),
       ],
     );
+    late final PioneerRouter root;
     final rootConfiguration = PioneerConfiguration(
       initialRoute: const HomeRoute(),
       routes: [
@@ -488,6 +506,7 @@ void main() {
             controller: shell,
             child: PioneerStatefulShell(controller: shell),
           ),
+          shell: shell,
         ),
         PioneerRouteDefinition<ProductRoute>.deepLink(
           parse: (uri) {
@@ -500,10 +519,10 @@ void main() {
             return null;
           },
           builder: (context, route) => Text('full-screen product ${route.id}'),
+          shell: shell,
         ),
       ],
     );
-    late final PioneerRouter root;
     root = PioneerRouter(
       configuration: rootConfiguration,
       deepLinkHandler: (uri) {
@@ -524,16 +543,6 @@ void main() {
     await tester.pumpWidget(
       PioneerRouterScope(
         router: root,
-        handleSystemBack: () {
-          if (root.isDeepLinkRoute) {
-            shell.resetBranches();
-            root.reset(const HomeRoute());
-
-            return true;
-          }
-
-          return shell.handleSystemBack();
-        },
         child: MaterialApp.router(routerConfig: root.routerConfig),
       ),
     );
@@ -541,6 +550,7 @@ void main() {
 
     expect(find.text('full-screen product 42'), findsOneWidget);
     expect(root.currentRoute, isA<ProductRoute>());
+    expect(root.currentShell, same(shell));
     expect(root.isDeepLinkRoute, isTrue);
     expect(shell.currentIndex, 0);
 
@@ -550,7 +560,7 @@ void main() {
     expect(root.isDeepLinkRoute, isFalse);
     expect(find.text('full-screen product 43'), findsOneWidget);
 
-    await tester.binding.handlePopRoute();
+    root.pop();
     await tester.pumpAndSettle();
 
     expect(root.currentRoute, isA<ProductRoute>());
@@ -563,6 +573,17 @@ void main() {
 
     expect(root.currentRoute, isA<HomeRoute>());
     expect(shell.currentIndex, 0);
+    expect(find.text('home'), findsOneWidget);
+
+    root.routeInformationProvider.setRouteInformation(
+      RouteInformation(uri: Uri.parse('pioneer-example://app/products/44')),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(root.currentRoute, isA<HomeRoute>());
     expect(find.text('home'), findsOneWidget);
 
     root.routeInformationProvider.setRouteInformation(

@@ -40,13 +40,9 @@ final class PioneerRouter {
 
   List<PioneerStackEntry> get entries => stack.entries;
   PioneerRoute get currentRoute => stack.currentRoute;
+  PioneerShellNavigation? get currentShell => stack.currentMatch.shell;
   bool get canPop => stack.canPop;
-  bool get isDeepLinkRoute => entries.length == 1 && stack.currentMatch.supportsDeepLinking;
-  PioneerSystemBackHandler? get handleSystemBack => routerDelegate.handleSystemBack;
-
-  set handleSystemBack(PioneerSystemBackHandler? value) {
-    routerDelegate.handleSystemBack = value;
-  }
+  bool get isDeepLinkRoute => stack.isDeepLinkRoute;
 
   Future<T?> push<T>(PioneerRoute route) => stack.push<T>(route);
 
@@ -64,13 +60,44 @@ final class PioneerRouter {
   ) =>
       stack.pushAndRemoveUntil<T>(route, predicate);
 
-  void pop<T>([T? result]) => stack.pop<T>(result);
+  void pop<T>([T? result]) {
+    if (stack.canPop) {
+      stack.pop<T>(result);
+
+      return;
+    }
+
+    if (isDeepLinkRoute && (routerDelegate.handleSystemBack?.call() ?? false)) {
+      return;
+    }
+
+    stack.pop<T>(result);
+  }
 
   void reset([PioneerRoute? route]) {
     final match = configuration.matchRoute(route ?? configuration.initialRoute);
 
     routeInformationProvider.setInternalMatch(match);
     stack.setPath(match, force: true);
+  }
+
+  bool handleSystemBack({PioneerSystemBackCallback? onSystemBack}) {
+    onSystemBack?.call();
+
+    final shell = currentShell;
+
+    if (shell == null) {
+      return false;
+    }
+
+    if (isDeepLinkRoute) {
+      shell.reset();
+      reset();
+
+      return true;
+    }
+
+    return shell.handleSystemBack();
   }
 
   /// Removes every page above the first one without recreating its state.
@@ -88,11 +115,13 @@ final class PioneerRouterScope extends StatefulWidget {
   const PioneerRouterScope({
     super.key,
     required this.router,
+    this.onSystemBack,
     this.handleSystemBack,
     required this.child,
   });
 
   final PioneerRouter router;
+  final PioneerSystemBackCallback? onSystemBack;
   final PioneerSystemBackHandler? handleSystemBack;
   final Widget child;
 
@@ -148,18 +177,26 @@ final class _PioneerRouterScopeState extends State<PioneerRouterScope> {
       return;
     }
 
-    if (oldWidget.handleSystemBack != widget.handleSystemBack) {
-      widget.router.handleSystemBack = widget.handleSystemBack;
+    if (oldWidget.onSystemBack != widget.onSystemBack ||
+        oldWidget.handleSystemBack != widget.handleSystemBack) {
+      _installHandler();
     }
   }
 
   void _attachRouter() {
-    _previousHandleSystemBack = widget.router.handleSystemBack;
-    widget.router.handleSystemBack = widget.handleSystemBack;
+    _previousHandleSystemBack = widget.router.routerDelegate.handleSystemBack;
+    _installHandler();
+  }
+
+  void _installHandler() {
+    widget.router.routerDelegate.handleSystemBack = widget.handleSystemBack ??
+        () => widget.router.handleSystemBack(
+              onSystemBack: widget.onSystemBack,
+            );
   }
 
   void _detachRouter(PioneerRouter router) {
-    router.handleSystemBack = _previousHandleSystemBack;
+    router.routerDelegate.handleSystemBack = _previousHandleSystemBack;
   }
 
   @override

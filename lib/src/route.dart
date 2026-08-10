@@ -7,6 +7,12 @@ abstract interface class PioneerRoute {
   Uri get uri;
 }
 
+abstract interface class PioneerShellNavigation {
+  void reset();
+
+  bool handleSystemBack();
+}
+
 typedef PioneerRouteParser<R extends PioneerRoute> = R? Function(Uri uri);
 typedef PioneerRouteBuilder<R extends PioneerRoute> = Widget Function(
   BuildContext context,
@@ -17,17 +23,20 @@ typedef PioneerRouteBuilder<R extends PioneerRoute> = Widget Function(
 final class PioneerRouteDefinition<R extends PioneerRoute> implements PioneerRouteDefinitionBase {
   const PioneerRouteDefinition({
     required this.builder,
+    this.shell,
   })  : supportsDeepLinking = false,
         _parse = null;
 
   const PioneerRouteDefinition.deepLink({
     required PioneerRouteParser<R> parse,
     required this.builder,
+    this.shell,
   })  : supportsDeepLinking = true,
         _parse = parse;
 
   final PioneerRouteParser<R>? _parse;
   final PioneerRouteBuilder<R> builder;
+  final PioneerShellNavigation? shell;
 
   @override
   final bool supportsDeepLinking;
@@ -54,6 +63,7 @@ final class PioneerRouteDefinition<R extends PioneerRoute> implements PioneerRou
       route: route,
       build: (context) => builder(context, route),
       supportsDeepLinking: supportsDeepLinking,
+      shell: shell,
     );
   }
 
@@ -67,8 +77,12 @@ final class PioneerRouteDefinition<R extends PioneerRoute> implements PioneerRou
       route: route,
       build: (context) => builder(context, route),
       supportsDeepLinking: supportsDeepLinking,
+      shell: shell,
     );
   }
+
+  @override
+  String toString() => 'PioneerRouteDefinition($R)';
 }
 
 abstract interface class PioneerRouteDefinitionBase {
@@ -86,11 +100,13 @@ final class PioneerMatch {
     required this.route,
     required this.build,
     required this.supportsDeepLinking,
+    required this.shell,
   });
 
   final PioneerRoute route;
   final WidgetBuilder build;
   final bool supportsDeepLinking;
+  final PioneerShellNavigation? shell;
 }
 
 final class PioneerRouteNotFound implements Exception {
