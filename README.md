@@ -132,18 +132,20 @@ and widget state mounted. Use `resetBranch(index)` for one branch or
 `PioneerRouterScope.rootOf(context)` returns the outer router and can present a
 page above the entire bottom bar.
 
-Connect Android system Back to the shell through the root router:
+Connect Android system Back to the shell where the root router enters the widget tree:
 
 ```dart
-final rootRouter = PioneerRouter(
-  configuration: rootConfiguration,
-  onPopFallback: shell.handleSystemBack,
+PioneerRouterScope(
+  router: rootRouter,
+  handleSystemBack: shell.handleSystemBack,
+  child: MaterialApp.router(routerConfig: rootRouter.routerConfig),
 );
 ```
 
 The handler pops the active branch, then returns a branch root to the shell's
 initial branch. It returns `false` only at the initial branch root, allowing the
-platform to close the application.
+platform to close the application. The parameter is nullable; without it, an
+unhandled Back action is passed to the platform.
 
 From a branch page, `goTo` resolves and activates a keyed branch. It prefers
 the active branch, then requires exactly one matching branch. An ambiguous

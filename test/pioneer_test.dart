@@ -213,10 +213,8 @@ void main() {
         _branch(configuration, 'third'),
       ],
     );
-    final root = PioneerRouter(
-      configuration: configuration,
-      onPopFallback: shell.handleSystemBack,
-    );
+    final root = PioneerRouter(configuration: configuration);
+    root.handleSystemBack = shell.handleSystemBack;
     addTearDown(() {
       root.dispose();
       shell.dispose();
@@ -235,10 +233,8 @@ void main() {
         _branch(configuration, 'third'),
       ],
     );
-    final root = PioneerRouter(
-      configuration: configuration,
-      onPopFallback: shell.handleSystemBack,
-    );
+    final root = PioneerRouter(configuration: configuration);
+    root.handleSystemBack = shell.handleSystemBack;
     addTearDown(() {
       root.dispose();
       shell.dispose();
@@ -249,6 +245,39 @@ void main() {
     expect(await root.routerDelegate.popRoute(), isTrue);
     expect(shell.currentIndex, shell.initialIndex);
     expect(await root.routerDelegate.popRoute(), isFalse);
+  });
+
+  testWidgets('router scope installs and removes its system back handler', (tester) async {
+    final root = PioneerRouter(configuration: configuration);
+    var calls = 0;
+    addTearDown(root.dispose);
+
+    await tester.pumpWidget(
+      PioneerRouterScope(
+        router: root,
+        handleSystemBack: () {
+          calls++;
+
+          return true;
+        },
+        child: MaterialApp.router(routerConfig: root.routerConfig),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(await root.routerDelegate.popRoute(), isTrue);
+    expect(calls, 1);
+
+    await tester.pumpWidget(
+      PioneerRouterScope(
+        router: root,
+        child: MaterialApp.router(routerConfig: root.routerConfig),
+      ),
+    );
+    await tester.pump();
+
+    expect(await root.routerDelegate.popRoute(), isFalse);
+    expect(calls, 1);
   });
 
   group('PioneerShellController.goTo', () {

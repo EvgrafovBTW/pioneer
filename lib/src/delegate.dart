@@ -4,6 +4,8 @@ import 'configuration.dart';
 import 'route.dart';
 import 'stack.dart';
 
+typedef PioneerSystemBackHandler = bool Function();
+
 final class PioneerRoutePath {
   const PioneerRoutePath(this.match);
 
@@ -66,12 +68,15 @@ final class PioneerRouteInformationProvider extends RouteInformationProvider wit
 
 final class PioneerRouterDelegate extends RouterDelegate<PioneerRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<PioneerRoutePath> {
-  PioneerRouterDelegate(this.stack, {this.onPopFallback}) {
+  PioneerRouterDelegate(
+    this.stack, {
+    this.handleSystemBack,
+  }) {
     stack.addListener(notifyListeners);
   }
 
   final PioneerStack stack;
-  final bool Function()? onPopFallback;
+  PioneerSystemBackHandler? handleSystemBack;
 
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -92,7 +97,7 @@ final class PioneerRouterDelegate extends RouterDelegate<PioneerRoutePath>
       return true;
     }
 
-    return onPopFallback?.call() ?? false;
+    return handleSystemBack?.call() ?? false;
   }
 
   @override
