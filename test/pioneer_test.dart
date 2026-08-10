@@ -371,7 +371,7 @@ void main() {
           builder: (context, route) => PioneerStatefulShell(controller: shell),
         ),
         PioneerRouteDefinition<ProfileRoute>(
-          builder: (context, route) => const Text('root admin'),
+          builder: (context, route) => const Text('root auth'),
         ),
       ],
     );
@@ -394,7 +394,7 @@ void main() {
     await tester.tap(find.byKey(const Key('increment')));
     root.push<void>(const ProfileRoute());
     await tester.pumpAndSettle();
-    expect(find.text('root admin'), findsOneWidget);
+    expect(find.text('root auth'), findsOneWidget);
 
     shell.resetBranches();
     root.popToRoot();

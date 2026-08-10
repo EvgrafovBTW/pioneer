@@ -33,9 +33,9 @@ class _HomePageState extends State<HomePage> {
               child: const Text('Open inside Home branch'),
             ),
             TextButton(
-              key: const Key('home-admin'),
-              onPressed: () => context.pushRoot<void>(const AdminRoute()),
-              child: const Text('Open admin'),
+              key: const Key('home-auth'),
+              onPressed: () => context.pushRoot<void>(const AuthRoute()),
+              child: const Text('Open auth'),
             ),
           ],
         ),
@@ -62,8 +62,8 @@ class HomeDetailsPage extends StatelessWidget {
               child: const Text('Back inside branch'),
             ),
             TextButton(
-              onPressed: () => context.pushRoot<void>(const AdminRoute()),
-              child: const Text('Open admin'),
+              onPressed: () => context.pushRoot<void>(const AuthRoute()),
+              child: const Text('Open auth'),
             ),
           ],
         ),

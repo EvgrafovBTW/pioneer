@@ -1,4 +1,4 @@
-import 'package:example/features/core/admin_screen.dart';
+import 'package:example/features/core/auth_screen.dart';
 import 'package:example/features/core/root_screen.dart';
 import 'package:example/router/app_router.dart';
 import 'package:flutter/foundation.dart';
@@ -28,9 +28,9 @@ void main() {
         controller: shell,
         child: const RootScreen(),
       ),
-      adminBuilder: (context, route) => PioneerShellScope(
+      authBuilder: (context, route) => PioneerShellScope(
         controller: shell,
-        child: const AdminScreen(),
+        child: const AuthScreen(),
       ),
     ),
   );

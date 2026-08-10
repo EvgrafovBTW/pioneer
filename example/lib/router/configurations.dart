@@ -10,7 +10,7 @@ import 'package:pioneer/pioneer.dart';
 
 PioneerConfiguration rootConfiguration({
   required PioneerRouteBuilder<RootRoute> rootBuilder,
-  required PioneerRouteBuilder<AdminRoute> adminBuilder,
+  required PioneerRouteBuilder<AuthRoute> authBuilder,
 }) =>
     PioneerConfiguration(
       initialRoute: const RootRoute(),
@@ -18,8 +18,8 @@ PioneerConfiguration rootConfiguration({
         PioneerRouteDefinition<RootRoute>(
           builder: rootBuilder,
         ),
-        PioneerRouteDefinition<AdminRoute>(
-          builder: adminBuilder,
+        PioneerRouteDefinition<AuthRoute>(
+          builder: authBuilder,
         ),
       ],
     );

@@ -21,9 +21,9 @@ class ProductScreen extends StatelessWidget {
               child: const Text('Back to catalog'),
             ),
             TextButton(
-              key: const Key('product-admin'),
-              onPressed: () => context.pushRoot<void>(const AdminRoute()),
-              child: const Text('Open admin'),
+              key: const Key('product-auth'),
+              onPressed: () => context.pushRoot<void>(const AuthRoute()),
+              child: const Text('Open auth'),
             ),
             TextButton(
               key: const Key('product-to-home-details'),

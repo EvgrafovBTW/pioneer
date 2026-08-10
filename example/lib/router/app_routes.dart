@@ -7,9 +7,9 @@ final class RootRoute implements PioneerRoute {
   Uri get uri => Uri(path: '/');
 }
 
-final class AdminRoute implements PioneerRoute {
-  const AdminRoute();
+final class AuthRoute implements PioneerRoute {
+  const AuthRoute();
 
   @override
-  Uri get uri => Uri(path: '/admin');
+  Uri get uri => Uri(path: '/auth');
 }

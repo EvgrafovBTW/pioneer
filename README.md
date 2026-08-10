@@ -57,7 +57,7 @@ from `BuildContext`:
 ```dart
 context.push<void>(const ProductRoute(productId: 42));
 context.pop();
-context.pushRoot<void>(const AdminRoute());
+context.pushRoot<void>(const AuthRoute());
 context.goTo(const HomeDetailsRoute());
 context.resetBranches();
 context.popToRoot();

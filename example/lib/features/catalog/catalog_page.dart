@@ -22,8 +22,8 @@ class CatalogPage extends StatelessWidget {
               child: const Text('Open product inside branch'),
             ),
             TextButton(
-              onPressed: () => context.pushRoot<void>(const AdminRoute()),
-              child: const Text('Open admin'),
+              onPressed: () => context.pushRoot<void>(const AuthRoute()),
+              child: const Text('Open auth'),
             ),
           ],
         ),
