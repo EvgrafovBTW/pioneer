@@ -99,7 +99,7 @@ state.
 ## Stateful shell
 
 ```dart
-final shell = PioneerShellController(
+final shell = PioneerShellController.branches(
   branches: [
     PioneerShellBranch(
       key: const ValueKey('homeKey'),
@@ -116,12 +116,15 @@ final shell = PioneerShellController(
   ],
 );
 
-Scaffold(
-  body: PioneerStatefulShell(controller: shell),
-  bottomNavigationBar: BottomNavigationBar(
-    currentIndex: shell.currentIndex,
-    onTap: shell.goBranch,
-    items: const [/* three branches */],
+PioneerShellScope(
+  controller: shell,
+  child: Scaffold(
+    body: PioneerStatefulShell(controller: shell),
+    bottomNavigationBar: BottomNavigationBar(
+      currentIndex: shell.currentIndex,
+      onTap: shell.goBranch,
+      items: const [/* three branches */],
+    ),
   ),
 );
 ```
@@ -131,6 +134,57 @@ and widget state mounted. Use `resetBranch(index)` for one branch or
 `resetBranches()` for a complete shell reset. From inside a branch,
 `PioneerRouterScope.rootOf(context)` returns the outer router and can present a
 page above the entire bottom bar.
+
+For a linear flow without tabs, create a single-stack shell:
+
+```dart
+final authShell = PioneerShellController.single(
+  configuration: authConfiguration,
+);
+
+PioneerShellScope(controller: authShell);
+```
+
+It owns exactly one router, available as `authShell.router`. Pages such as sign
+in and registration use the regular `push`, `pop`, and `reset` operations. A
+single shell has no branch switching; `handleSystemBack` pops its router and
+returns `false` at its initial page.
+
+This keeps root route builders uniform:
+
+```dart
+const needAuth = true;
+final PioneerRoute initialRoute = needAuth ? const AuthRoute() : const RootRoute();
+
+final rootRouter = PioneerRouter(
+  configuration: rootConfiguration(
+    initialRoute: initialRoute,
+    rootBuilder: (context, route) => PioneerShellScope(
+      controller: branchShell,
+      child: const RootScreen(),
+    ),
+    authBuilder: (context, route) => PioneerShellScope(
+      controller: authShell,
+    ),
+  ),
+);
+```
+
+The startup decision is made before `runApp`. In a real application,
+`needAuth` can be obtained from persisted user or session data before creating
+the root router.
+
+The two shell builders themselves remain uniform:
+
+```dart
+rootBuilder: (context, route) => PioneerShellScope(
+  controller: branchShell,
+  child: const RootScreen(),
+),
+authBuilder: (context, route) => PioneerShellScope(
+  controller: authShell,
+),
+```
 
 Connect Android system Back to the shell where the root router enters the widget tree:
 

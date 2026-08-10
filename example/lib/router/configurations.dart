@@ -1,19 +1,22 @@
+import 'package:example/features/core/auth_screen.dart';
 import 'package:example/features/catalog/catalog_page.dart';
 import 'package:example/features/home/home_page.dart';
 import 'package:example/features/product/product_screen.dart';
 import 'package:example/features/profile/profile_page.dart';
 import 'package:example/router/app_routes.dart';
+import 'package:example/router/auth_routes.dart';
 import 'package:example/router/catalog_routes.dart';
 import 'package:example/router/home_routes.dart';
 import 'package:example/router/profile_routes.dart';
 import 'package:pioneer/pioneer.dart';
 
 PioneerConfiguration rootConfiguration({
+  required PioneerRoute initialRoute,
   required PioneerRouteBuilder<RootRoute> rootBuilder,
   required PioneerRouteBuilder<AuthRoute> authBuilder,
 }) =>
     PioneerConfiguration(
-      initialRoute: const RootRoute(),
+      initialRoute: initialRoute,
       routes: [
         PioneerRouteDefinition<RootRoute>(
           builder: rootBuilder,
@@ -23,6 +26,18 @@ PioneerConfiguration rootConfiguration({
         ),
       ],
     );
+
+final authConfiguration = PioneerConfiguration(
+  initialRoute: const SignInRoute(),
+  routes: [
+    PioneerRouteDefinition<SignInRoute>(
+      builder: (context, route) => const AuthScreen(),
+    ),
+    PioneerRouteDefinition<RegistrationRoute>(
+      builder: (context, route) => const RegistrationScreen(),
+    ),
+  ],
+);
 
 final homeConfiguration = PioneerConfiguration(
   initialRoute: const HomeRoute(),

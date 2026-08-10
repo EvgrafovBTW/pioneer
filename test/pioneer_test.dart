@@ -129,7 +129,7 @@ void main() {
       ],
     );
     final root = PioneerRouter(configuration: shortcutConfiguration);
-    final shell = PioneerShellController(
+    final shell = PioneerShellController.branches(
       branches: [
         _branch(configuration, 'first'),
         _branch(configuration, 'second'),
@@ -168,7 +168,7 @@ void main() {
   testWidgets('stateful shell preserves branch state and resets all branches', (
     tester,
   ) async {
-    final shell = PioneerShellController(
+    final shell = PioneerShellController.branches(
       branches: [
         _branch(counterConfiguration, 'counter'),
         _branch(configuration, 'second'),
@@ -177,7 +177,12 @@ void main() {
     );
     addTearDown(shell.dispose);
     await tester.pumpWidget(
-      MaterialApp(home: PioneerStatefulShell(controller: shell)),
+      MaterialApp(
+        home: PioneerShellScope(
+          controller: shell,
+          child: PioneerStatefulShell(controller: shell),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -205,8 +210,58 @@ void main() {
     expect(shell.branches.every((branch) => branch.entries.length == 1), isTrue);
   });
 
+  testWidgets('single shell owns one navigable router', (tester) async {
+    final shell = PioneerShellController.single(configuration: configuration);
+    addTearDown(shell.dispose);
+
+    expect(shell.isSingle, isTrue);
+    expect(shell.hasBranches, isFalse);
+    expect(() => shell.branches, throwsStateError);
+    expect(() => shell.goBranch(0), throwsStateError);
+
+    await tester.pumpWidget(
+      MaterialApp(home: PioneerShellScope(controller: shell)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('home'), findsOneWidget);
+
+    shell.router.push<void>(const ProductRoute(21));
+    await tester.pumpAndSettle();
+
+    expect(find.text('product 21'), findsOneWidget);
+    expect(shell.handleSystemBack(), isTrue);
+    await tester.pumpAndSettle();
+
+    expect(find.text('home'), findsOneWidget);
+    expect(shell.handleSystemBack(), isFalse);
+  });
+
+  test('shell scope validates child against the controller mode', () {
+    final single = PioneerShellController.single(configuration: configuration);
+    final branched = PioneerShellController.branches(
+      branches: [_branch(configuration, 'home')],
+    );
+    addTearDown(() {
+      single.dispose();
+      branched.dispose();
+    });
+
+    expect(
+      () => PioneerShellScope(
+        controller: single,
+        child: const SizedBox(),
+      ),
+      throwsArgumentError,
+    );
+    expect(
+      () => PioneerShellScope(controller: branched),
+      throwsArgumentError,
+    );
+  });
+
   test('root back falls through to the active shell branch', () async {
-    final shell = PioneerShellController(
+    final shell = PioneerShellController.branches(
       branches: [
         _branch(configuration, 'first'),
         _branch(configuration, 'second'),
@@ -226,7 +281,7 @@ void main() {
   });
 
   test('system back returns a branch root to the initial branch', () async {
-    final shell = PioneerShellController(
+    final shell = PioneerShellController.branches(
       branches: [
         _branch(configuration, 'first'),
         _branch(configuration, 'second'),
@@ -282,7 +337,7 @@ void main() {
 
   group('PioneerShellController.goTo', () {
     test('prefers the active branch when it supports the route', () {
-      final shell = PioneerShellController(
+      final shell = PioneerShellController.branches(
         branches: [
           _branch(productConfiguration, 'home'),
           _branch(productConfiguration, 'catalog'),
@@ -297,7 +352,7 @@ void main() {
     });
 
     test('selects the only matching keyed branch', () {
-      final shell = PioneerShellController(
+      final shell = PioneerShellController.branches(
         branches: [
           _branch(profileConfiguration, 'profile'),
           _branch(productConfiguration, 'catalog'),
@@ -312,7 +367,7 @@ void main() {
     });
 
     test('throws when multiple inactive branches match', () {
-      final shell = PioneerShellController(
+      final shell = PioneerShellController.branches(
         branches: [
           _branch(profileConfiguration, 'profile'),
           _branch(productConfiguration, 'home'),
@@ -328,7 +383,7 @@ void main() {
     });
 
     test('an explicit key searches only that branch', () {
-      final shell = PioneerShellController(
+      final shell = PioneerShellController.branches(
         branches: [
           _branch(profileConfiguration, 'profile'),
           _branch(productConfiguration, 'home'),
@@ -357,7 +412,7 @@ void main() {
   testWidgets('nested shell does not duplicate navigator keys on startup/reset', (
     tester,
   ) async {
-    final shell = PioneerShellController(
+    final shell = PioneerShellController.branches(
       branches: [
         _branch(counterConfiguration, 'counter'),
         _branch(configuration, 'second'),
@@ -368,7 +423,10 @@ void main() {
       initialRoute: const HomeRoute(),
       routes: [
         PioneerRouteDefinition<HomeRoute>(
-          builder: (context, route) => PioneerStatefulShell(controller: shell),
+          builder: (context, route) => PioneerShellScope(
+            controller: shell,
+            child: PioneerStatefulShell(controller: shell),
+          ),
         ),
         PioneerRouteDefinition<ProfileRoute>(
           builder: (context, route) => const Text('root auth'),

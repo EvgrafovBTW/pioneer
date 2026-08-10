@@ -15,20 +15,36 @@ final class PioneerShellBranch {
   final LocalKey? key;
 }
 
-/// Owns independent navigation stacks used by a stateful shell.
+/// Owns either one navigation stack or independent stacks for shell branches.
 final class PioneerShellController extends ChangeNotifier {
-  factory PioneerShellController({
+  factory PioneerShellController.branches({
     required Iterable<PioneerShellBranch> branches,
     int initialIndex = 0,
   }) {
     final branchList = List<PioneerShellBranch>.unmodifiable(branches);
-    return PioneerShellController._(branchList, initialIndex);
+
+    return PioneerShellController._(
+      branchList,
+      initialIndex,
+      isSingle: false,
+    );
+  }
+
+  factory PioneerShellController.single({
+    required PioneerConfiguration configuration,
+  }) {
+    return PioneerShellController._(
+      [PioneerShellBranch(configuration: configuration)],
+      0,
+      isSingle: true,
+    );
   }
 
   PioneerShellController._(
     this._branchDefinitions,
-    int initialIndex,
-  )   : _initialIndex = initialIndex,
+    int initialIndex, {
+    required this.isSingle,
+  })  : _initialIndex = initialIndex,
         _currentIndex = initialIndex,
         _routers = List.unmodifiable(
           _branchDefinitions.map(
@@ -61,14 +77,50 @@ final class PioneerShellController extends ChangeNotifier {
   final List<PioneerShellBranch> _branchDefinitions;
   final List<PioneerRouter> _routers;
   final int _initialIndex;
+  final bool isSingle;
   int _currentIndex;
 
-  List<PioneerRouter> get branches => _routers;
-  int get initialIndex => _initialIndex;
-  int get currentIndex => _currentIndex;
-  PioneerRouter get currentBranch => _routers[_currentIndex];
+  bool get hasBranches => !isSingle;
+  List<PioneerRouter> get branches {
+    _requireBranches('branches');
 
-  PioneerRouter branch(int index) => _routers[index];
+    return _routers;
+  }
+
+  int get initialIndex {
+    _requireBranches('initialIndex');
+
+    return _initialIndex;
+  }
+
+  int get currentIndex {
+    _requireBranches('currentIndex');
+
+    return _currentIndex;
+  }
+
+  PioneerRouter get currentBranch {
+    _requireBranches('currentBranch');
+
+    return _routers[_currentIndex];
+  }
+
+  /// The only router owned by a single shell.
+  ///
+  /// Throws when this controller was created with [PioneerShellController.branches].
+  PioneerRouter get router {
+    if (!isSingle) {
+      throw StateError('router is only available on a single Pioneer shell.');
+    }
+
+    return _routers.single;
+  }
+
+  PioneerRouter branch(int index) {
+    _requireBranches('branch');
+
+    return _routers[index];
+  }
 
   /// Replaces a resolved branch stack with [route] and activates that branch.
   ///
@@ -76,6 +128,8 @@ final class PioneerShellController extends ChangeNotifier {
   /// route. Otherwise exactly one keyed branch must support it. With an
   /// explicit key, only that branch is inspected.
   void goTo(PioneerRoute route, {LocalKey? branchKey}) {
+    _requireBranches('goTo');
+
     final index =
         branchKey == null ? _resolveBranch(route) : _resolveExplicitBranch(route, branchKey);
 
@@ -84,6 +138,8 @@ final class PioneerShellController extends ChangeNotifier {
   }
 
   void goBranch(int index) {
+    _requireBranches('goBranch');
+
     RangeError.checkValidIndex(index, _routers, 'index');
 
     if (_currentIndex == index) {
@@ -95,12 +151,16 @@ final class PioneerShellController extends ChangeNotifier {
   }
 
   void resetBranch(int index) {
+    _requireBranches('resetBranch');
+
     RangeError.checkValidIndex(index, _routers, 'index');
 
     _routers[index].reset();
   }
 
   void resetBranches({int? activeIndex}) {
+    _requireBranches('resetBranches');
+
     final targetIndex = activeIndex ?? _initialIndex;
 
     RangeError.checkValidIndex(targetIndex, _routers, 'activeIndex');
@@ -124,8 +184,10 @@ final class PioneerShellController extends ChangeNotifier {
   /// the initial branch. Returns false only at the initial branch root so the
   /// platform can close the application.
   bool handleSystemBack() {
-    if (currentBranch.canPop) {
-      currentBranch.pop();
+    final currentRouter = _routers[_currentIndex];
+
+    if (currentRouter.canPop) {
+      currentRouter.pop();
 
       return true;
     }
@@ -137,6 +199,12 @@ final class PioneerShellController extends ChangeNotifier {
     }
 
     return false;
+  }
+
+  void _requireBranches(String operation) {
+    if (isSingle) {
+      throw StateError('$operation is only available on a branched Pioneer shell.');
+    }
   }
 
   int _resolveBranch(PioneerRoute route) {
@@ -231,7 +299,7 @@ final class PioneerAmbiguousShellRoute implements Exception {
       'branches: ${branchKeys.join(', ')}. Pass branchKey explicitly.';
 }
 
-/// Keeps every branch mounted while displaying only the active branch.
+/// Displays a single shell router or keeps every branch mounted.
 final class PioneerStatefulShell extends StatefulWidget {
   const PioneerStatefulShell({
     super.key,
@@ -276,31 +344,68 @@ final class _PioneerStatefulShellState extends State<PioneerStatefulShell> {
   void _handleShellChanged() => setState(() {});
 
   List<Widget> _buildBranches() => [
-        for (var index = 0; index < widget.controller.branches.length; index++)
+        if (widget.controller.isSingle)
           PioneerRouterScope(
-            key: ValueKey<int>(index),
-            router: widget.controller.branch(index),
+            router: widget.controller.router,
             child: Router.withConfig(
-              config: widget.controller.branch(index).routerConfig,
+              config: widget.controller.router.routerConfig,
             ),
           ),
+        if (widget.controller.hasBranches)
+          for (var index = 0; index < widget.controller.branches.length; index++)
+            PioneerRouterScope(
+              key: ValueKey<int>(index),
+              router: widget.controller.branch(index),
+              child: Router.withConfig(
+                config: widget.controller.branch(index).routerConfig,
+              ),
+            ),
       ];
 
   @override
   Widget build(BuildContext context) {
-    return PioneerShellScope(
-      controller: widget.controller,
-      child: IndexedStack(
-        index: widget.controller.currentIndex,
-        children: _branches,
-      ),
+    if (widget.controller.isSingle) {
+      return _branches.single;
+    }
+
+    return IndexedStack(
+      index: widget.controller.currentIndex,
+      children: _branches,
     );
   }
 }
 
-/// Provides the surrounding stateful shell controller to branch pages.
+/// Configures and provides a shell controller to its pages.
+///
+/// A branched controller requires [child], which normally contains a
+/// [PioneerStatefulShell] and branch switcher. A single controller builds its
+/// only router automatically and therefore does not accept [child].
 final class PioneerShellScope extends InheritedNotifier<PioneerShellController> {
-  const PioneerShellScope({
+  factory PioneerShellScope({
+    Key? key,
+    required PioneerShellController controller,
+    Widget? child,
+  }) {
+    if (controller.isSingle && child != null) {
+      throw ArgumentError.value(
+        child,
+        'child',
+        'A single Pioneer shell builds its router automatically.',
+      );
+    }
+
+    if (controller.hasBranches && child == null) {
+      throw ArgumentError.notNull('child');
+    }
+
+    return PioneerShellScope._(
+      key: key,
+      controller: controller,
+      child: child ?? PioneerStatefulShell(controller: controller),
+    );
+  }
+
+  const PioneerShellScope._({
     super.key,
     required PioneerShellController controller,
     required super.child,
