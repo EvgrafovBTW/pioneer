@@ -2,47 +2,47 @@ import 'package:example/features/core/root_screen.dart';
 import 'package:example/features/product/product_screen.dart';
 import 'package:example/router/app_router.dart';
 import 'package:flutter/material.dart';
-import 'package:pioneer/pioneer.dart';
+import 'package:pioneer_router/pioneer_router.dart' as pioneer;
 
 void main() {
   final needAuth = _readNeedAuth();
 
-  final PioneerRoute initialRoute = needAuth ? const AuthRoute() : const RootRoute();
+  final pioneer.PioneerRoute initialRoute = needAuth ? const AuthRoute() : const RootRoute();
 
-  final branchShell = PioneerShellController.branches(
+  final branchShell = pioneer.PioneerShellController.branches(
     branches: [
-      PioneerShellBranch(
+      pioneer.PioneerShellBranch(
         key: AppBranchKeys.home,
         configuration: homeConfiguration,
       ),
-      PioneerShellBranch(
+      pioneer.PioneerShellBranch(
         key: AppBranchKeys.catalog,
         configuration: catalogConfiguration,
       ),
-      PioneerShellBranch(
+      pioneer.PioneerShellBranch(
         key: AppBranchKeys.profile,
         configuration: profileConfiguration,
       ),
     ],
   );
 
-  final authShell = PioneerShellController.single(
+  final authShell = pioneer.PioneerShellController.single(
     configuration: authConfiguration,
   );
 
-  final rootRouter = PioneerRouter(
+  final rootRouter = pioneer.PioneerRouter(
     configuration: rootConfiguration(
       initialRoute: initialRoute,
       rootShell: branchShell,
       authShell: authShell,
-      rootBuilder: (context, route) => PioneerShellScope(
+      rootBuilder: (context, route) => pioneer.PioneerShellScope(
         controller: branchShell,
         child: const RootScreen(),
       ),
-      authBuilder: (context, route) => PioneerShellScope(
+      authBuilder: (context, route) => pioneer.PioneerShellScope(
         controller: authShell,
       ),
-      productBuilder: (context, route) => PioneerShellScope(
+      productBuilder: (context, route) => pioneer.PioneerShellScope(
         controller: branchShell,
         child: ProductScreen(id: route.id),
       ),
@@ -73,13 +73,13 @@ class MainApp extends StatelessWidget {
     required this.rootRouter,
   });
 
-  final PioneerShellController branchShell;
-  final PioneerShellController authShell;
-  final PioneerRouter rootRouter;
+  final pioneer.PioneerShellController branchShell;
+  final pioneer.PioneerShellController authShell;
+  final pioneer.PioneerRouter rootRouter;
 
   @override
   Widget build(BuildContext context) {
-    return PioneerRouterScope(
+    return pioneer.PioneerRouterScope(
       router: rootRouter,
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,

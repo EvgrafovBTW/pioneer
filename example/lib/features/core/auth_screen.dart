@@ -1,7 +1,7 @@
 import 'package:example/router/app_routes.dart';
 import 'package:example/router/auth_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:pioneer/pioneer.dart';
+import 'package:pioneer_router/pioneer_router.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});

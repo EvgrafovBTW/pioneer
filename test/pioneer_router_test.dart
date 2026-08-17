@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pioneer/pioneer.dart';
+import 'package:pioneer_router/pioneer_router.dart';
 
 void main() {
   group('PioneerConfiguration', () {

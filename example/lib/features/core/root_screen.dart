@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pioneer/pioneer.dart';
+import 'package:pioneer_router/pioneer_router.dart';
 
 class RootScreen extends StatelessWidget {
   const RootScreen({super.key});

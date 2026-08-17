@@ -1,4 +1,4 @@
-import 'package:pioneer/pioneer.dart';
+import 'package:pioneer_router/pioneer_router.dart';
 
 final class CatalogRoute implements PioneerRoute {
   const CatalogRoute();

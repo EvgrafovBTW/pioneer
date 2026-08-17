@@ -1,4 +1,4 @@
-name: pioneer
+name: pioneer_router
 description: "A type-safe navigation package for Flutter with independent branch stacks."
 version: 0.1.0
 

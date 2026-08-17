@@ -8,7 +8,7 @@ import 'package:example/router/auth_routes.dart';
 import 'package:example/router/catalog_routes.dart';
 import 'package:example/router/home_routes.dart';
 import 'package:example/router/profile_routes.dart';
-import 'package:pioneer/pioneer.dart';
+import 'package:pioneer_router/pioneer_router.dart';
 
 PioneerConfiguration rootConfiguration({
   required PioneerRoute initialRoute,

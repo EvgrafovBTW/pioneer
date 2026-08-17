@@ -1,6 +1,6 @@
 import 'package:example/router/profile_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:pioneer/pioneer.dart';
+import 'package:pioneer_router/pioneer_router.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});

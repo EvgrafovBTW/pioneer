@@ -1,6 +1,6 @@
-# Pioneer
+# pioneer_router
 
-Pioneer is a typed navigation package built on Flutter's Navigator 2.0. Routes
+`pioneer_router` is a typed navigation package built on Flutter's Navigator 2.0. Routes
 are immutable objects, public navigation methods do not accept string paths,
 and untrusted deep links are converted to typed routes at the system boundary.
 

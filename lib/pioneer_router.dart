@@ -1,5 +1,3 @@
-library pioneer;
-
 export 'src/configuration.dart';
 export 'src/delegate.dart';
 export 'src/extensions.dart';
