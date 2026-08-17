@@ -1,5 +1,7 @@
-# 0.1.0
+# 0.1.1
+- Renamed library because "pioneer" already exists on pub.dev
 
+# 0.1.0
 - Added type-safe navigation with immutable route objects.
 - Added independent navigation stacks with typed push, pop, replace, and reset operations.
 - Added stateful multi-branch shells and single-stack shells.
